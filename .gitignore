@@ -9,4 +9,5 @@
 **/obj/*
 
 /Data/* - *
+/Data/IconSet.png
 /GoOnTap.Test/App.config
