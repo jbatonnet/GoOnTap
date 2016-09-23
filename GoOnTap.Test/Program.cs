@@ -30,12 +30,14 @@ namespace GoOnTap
             {
                 if (string.IsNullOrWhiteSpace(screenshot))
                     continue;
-                if (!File.Exists(screenshot))
+
+                string path = Path.Combine(screenshotsDirectory.FullName, screenshot);
+                if (!File.Exists(path))
                     continue;
 
                 int playerLevel = int.Parse(new string(Path.GetDirectoryName(screenshot).SkipWhile(c => !char.IsDigit(c)).ToArray()));
 
-                Image image = Image.FromFile(Path.Combine(screenshotsDirectory.FullName, screenshot));
+                Image image = Image.FromFile(path);
                 Bitmap bitmap = new Bitmap(image);
 
                 int[] pixels = new int[image.Width * image.Height];
