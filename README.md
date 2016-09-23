@@ -1,2 +1,2 @@
-# goontap
-A Pokemon Go assistant to replace "Now on Tap"
+# GoOnTap
+<meta charset="utf-8" />

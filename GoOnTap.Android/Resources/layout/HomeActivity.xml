@@ -1,0 +1,177 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <android.support.design.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
+
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/appbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/AppTheme.AppBar">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary" />
+
+        </android.support.design.widget.AppBarLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            android:orientation="vertical"
+            android:divider="?android:listDivider"
+            android:showDividers="middle|end">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <ImageView
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
+                    android:src="@drawable/logo"
+                    android:layout_marginTop="16dp"
+                    android:id="@+id/imageView2"
+                    android:layout_marginLeft="16dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Go on Tap"
+                    android:id="@+id/textView2"
+                    android:layout_alignTop="@+id/imageView2"
+                    android:layout_toEndOf="@+id/imageView2"
+                    android:layout_marginTop="22dp"
+                    android:layout_marginLeft="16dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Developed by Julien Batonnet"
+                    android:id="@+id/textView5"
+                    android:layout_below="@+id/textView2"
+                    android:layout_alignStart="@+id/textView2"
+                    android:layout_marginTop="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Once enabled, Go on Tap will replace Now on Tap assist app. If you long press your home button, Go on Tap will scan your screen to detect the pokemon and display its hidden stats."
+                    android:id="@+id/textView3"
+                    android:layout_below="@+id/imageView2"
+                    android:layout_marginTop="16dp"
+                    android:autoLink="web"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginBottom="16dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="1. Click on the button below to access assist settings"
+                    android:id="@+id/textView6"
+                    android:autoLink="web"
+                    android:layout_below="@+id/textView3"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="2. Replace the assist app with Go on Tap"
+                    android:id="@+id/textView26"
+                    android:autoLink="web"
+                    android:layout_below="@+id/textView6"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="3. Open a screen with a pokemon displayed, and long press your home button"
+                    android:id="@+id/textView28"
+                    android:autoLink="web"
+                    android:layout_below="@+id/textView26"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:id="@+id/StatusView">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Go on Tap is the default assist app"
+                    android:id="@+id/StatusLabel"
+                    android:gravity="center_vertical"
+                    android:layout_toEndOf="@+id/imageView3"
+                    android:layout_centerVertical="true"
+                    android:textSize="@dimen/abc_text_size_button_material"
+                    android:layout_marginLeft="24dp" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:id="@+id/SettingsButton"
+                android:focusable="true"
+                android:clickable="true"
+                android:background="?android:attr/selectableItemBackground">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="24dp"
+                    android:layout_marginLeft="24dp"
+                    android:layout_centerVertical="true"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_settings_black"
+                    android:id="@+id/imageView3"
+                    android:tint="@color/colorAccent" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Assist app settings"
+                    android:id="@+id/textView29"
+                    android:gravity="center_vertical"
+                    android:layout_toEndOf="@+id/imageView3"
+                    android:layout_centerVertical="true"
+                    android:textColor="@color/abc_primary_text_material_light"
+                    android:textSize="@dimen/abc_text_size_button_material" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    </android.support.design.widget.CoordinatorLayout>
+
+</android.support.v4.widget.DrawerLayout>

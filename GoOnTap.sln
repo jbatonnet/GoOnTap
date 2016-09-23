@@ -1,0 +1,47 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Utilities", "[Shared]\Utilities\Utilities.shproj", "{6D77D9F7-85BB-45EA-A467-8AC2882608D0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "[Shared]", "[Shared]", "{A1C7068F-29A6-4124-AA6B-26B16A3A3C52}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Android", "[Shared]\Android\Android.shproj", "{E62A7BA6-14A0-4DE8-927F-4A9AF4279FF3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoOnTap.Test", "GoOnTap.Test\GoOnTap.Test.csproj", "{40A73201-B96E-48EE-8E42-A0516F12F8F4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoOnTap.Android", "GoOnTap.Android\GoOnTap.Android.csproj", "{AC98B856-9836-4AAA-B0D9-DCE61104FFEE}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		[Shared]\Utilities\Utilities.projitems*{40a73201-b96e-48ee-8e42-a0516f12f8f4}*SharedItemsImports = 4
+		[Shared]\Utilities\Utilities.projitems*{6d77d9f7-85bb-45ea-a467-8ac2882608d0}*SharedItemsImports = 13
+		[Shared]\Android\Android.projitems*{ac98b856-9836-4aaa-b0d9-dce61104ffee}*SharedItemsImports = 4
+		[Shared]\Utilities\Utilities.projitems*{ac98b856-9836-4aaa-b0d9-dce61104ffee}*SharedItemsImports = 4
+		[Shared]\Android\Android.projitems*{e62a7ba6-14a0-4de8-927f-4a9af4279ff3}*SharedItemsImports = 13
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{40A73201-B96E-48EE-8E42-A0516F12F8F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40A73201-B96E-48EE-8E42-A0516F12F8F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40A73201-B96E-48EE-8E42-A0516F12F8F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40A73201-B96E-48EE-8E42-A0516F12F8F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC98B856-9836-4AAA-B0D9-DCE61104FFEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC98B856-9836-4AAA-B0D9-DCE61104FFEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC98B856-9836-4AAA-B0D9-DCE61104FFEE}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{AC98B856-9836-4AAA-B0D9-DCE61104FFEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC98B856-9836-4AAA-B0D9-DCE61104FFEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC98B856-9836-4AAA-B0D9-DCE61104FFEE}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6D77D9F7-85BB-45EA-A467-8AC2882608D0} = {A1C7068F-29A6-4124-AA6B-26B16A3A3C52}
+		{E62A7BA6-14A0-4DE8-927F-4A9AF4279FF3} = {A1C7068F-29A6-4124-AA6B-26B16A3A3C52}
+	EndGlobalSection
+EndGlobal
