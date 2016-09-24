@@ -26,10 +26,11 @@ namespace GoOnTap.Android
 {
     public class GoOnTapInteractionSession : VoiceInteractionSession
     {
-        private View assistantLayout, imageLayout;
+        private View emptyZone, assistantLayout, imageLayout;
         private TextView name;
         private TextView levelValue, cpValue, hpValue, playerLevelValue;
         private SeekBar levelSeek, cpSeek, hpSeek, playerLevelSeek;
+        private View arcFeedback;
         private ImageView image;
         private TableLayout ivTable;
 
@@ -53,6 +54,7 @@ namespace GoOnTap.Android
             imageLayout = view.FindViewById(Resource.Id.ImageLayout);
             image = view.FindViewById<ImageView>(Resource.Id.Image);
             ivTable = view.FindViewById<TableLayout>(Resource.Id.IVTable);
+            arcFeedback = view.FindViewById(Resource.Id.ArcFeedback);
 
             #region Pokemon name
 
@@ -151,7 +153,7 @@ namespace GoOnTap.Android
             #endregion
 
             // Handle transparent zone to hide
-            View emptyZone = view.FindViewById(Resource.Id.EmptyZone);
+            emptyZone = view.FindViewById(Resource.Id.EmptyZone);
             emptyZone.Click += (s, e) => Hide();
 
             // Adjust bottom margin according to navigation bar
@@ -181,6 +183,8 @@ namespace GoOnTap.Android
             cpValue.Text = "?";
             hpValue.Text = "?";
             playerLevelValue.Text = playerLevel.ToString();
+
+            arcFeedback.Visibility = ViewStates.Gone;
 
             levelSeek.Enabled = false;
             cpSeek.Enabled = false;
@@ -235,14 +239,34 @@ namespace GoOnTap.Android
                 Log.Trace("Found pokemon level: {0}", pokemonLevel);
 
                 // Find matching pokémon
+                PokemonInfo candyPokemon = string.IsNullOrEmpty(data.Candy) ? null : Constants.Pokemons.MinValue(p =>
+                {
+                    int englishDiff = p.EnglishName != null ? Utilities.Diff(data.Candy, p.EnglishName) : int.MaxValue;
+                    int frenchDiff = p.FrenchName != null ? Utilities.Diff(data.Candy, p.FrenchName) : int.MaxValue;
+                    int germanDiff = p.GermanName != null ? Utilities.Diff(data.Candy, p.GermanName) : int.MaxValue;
+
+                    return Math.Min(Math.Min(englishDiff, frenchDiff), germanDiff);
+                });
+
                 pokemon = Constants.Pokemons.MinValue(p =>
                 {
                     int englishDiff = p.EnglishName != null ? Utilities.Diff(data.Name, p.EnglishName) : int.MaxValue;
                     int frenchDiff = p.FrenchName != null ? Utilities.Diff(data.Name, p.FrenchName) : int.MaxValue;
                     int germanDiff = p.GermanName != null ? Utilities.Diff(data.Name, p.GermanName) : int.MaxValue;
+                    float nameRatio = Math.Min(Math.Min(englishDiff, frenchDiff), germanDiff);
 
-                    return Math.Min(Math.Min(englishDiff, frenchDiff), germanDiff);
+                    float evolutionRatio = candyPokemon == null ? -1 : (p.Id - candyPokemon.Id) / 6f;
+                    if (evolutionRatio < 0 || evolutionRatio > 1)
+                        evolutionRatio = 2;
+                    else if (evolutionRatio > 0.5f)
+                        evolutionRatio = 0.5f;
+
+                    float cpRatio = data.CP >= p.GetMinimumCP(pokemonLevel) && data.CP <= p.GetMaximumCP(pokemonLevel) ? 0.25f : 1;
+                    float hpRatio = data.HP >= p.GetMinimumHP(pokemonLevel) && data.HP <= p.GetMaximumHP(pokemonLevel) ? 0.25f : 1;
+
+                    return nameRatio * (evolutionRatio + 0.1f) * cpRatio * hpRatio;
                 });
+
                 Log.Trace("Found pokemon info: {0}", pokemon.EnglishName);
 
                 RefreshStats(true);
@@ -349,6 +373,19 @@ namespace GoOnTap.Android
                     hpSeek.Enabled = true;
                     playerLevelSeek.Enabled = true;
 
+                    // Arc feedback
+                    float density = Context.Resources.DisplayMetrics.Density;
+                    float levelAngle = (float)PokemonInfo.GetLevelAngle(pokemonLevel, playerLevel) / 180 * 178 + 1;
+                    float feedbackX = data.ArcX - (float)Math.Cos(levelAngle * Math.PI / 180) * data.ArcSize;
+                    float feedbackY = data.ArcY - (float)Math.Sin(levelAngle * Math.PI / 180) * data.ArcSize;
+
+                    RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams((int)(20 * density), (int)(20 * density));
+                    layoutParams.LeftMargin = (int)(feedbackX - 10 * density);
+                    layoutParams.TopMargin = (int)(feedbackY - 10 * density);
+
+                    arcFeedback.LayoutParameters = layoutParams;
+                    arcFeedback.Visibility = ViewStates.Visible;
+
                     string pokemonName = pokemon.GetLocalizedName(Locale.Default.ToString());
 
                     // Pokemon image
@@ -446,10 +483,10 @@ namespace GoOnTap.Android
 
                     for (int i = 0; i < matchingIVs.Length; i++)
                     {
-                        if (matchingIVs.Length > 10 && i >= 5 && i < matchingIVs.Length - 5)
+                        if (matchingIVs.Length > 8 && i >= 4 && i < matchingIVs.Length - 4)
                         {
                             addRow("...", "...", "...", "...");
-                            i = matchingIVs.Length - 5;
+                            i = matchingIVs.Length - 4;
                         }
 
                         Tuple<int, int, int> ivTuple = matchingIVs[i];
@@ -468,7 +505,7 @@ namespace GoOnTap.Android
 
             for (double level = 1; level <= maxLevel; level += 0.5)
             {
-                double angle = (Constants.CPMultipliers[level] - 0.094) * 202.037116 / Constants.CPMultipliers[playerLevel];
+                double angle = PokemonInfo.GetLevelAngle(level, playerLevel);
                 levels.Add(level, Math.Abs(levelAngle - angle));
             }
 

@@ -15,6 +15,11 @@ namespace GoOnTap
         public float LevelAngle { get; internal set; }
         public int CP { get; internal set; }
         public int HP { get; internal set; }
+
+        public string Candy { get; internal set; }
+        public int ArcX { get; internal set; }
+        public int ArcY { get; internal set; }
+        public int ArcSize { get; internal set; }
     }
 
     public class ImageProcessor
@@ -51,10 +56,10 @@ namespace GoOnTap
             {
                 string name = Path.GetFileNameWithoutExtension(file);
 
-                if (name.Length > 1 && name[0] != '_')
+                if (name.Length > 1 && name[1] != '_')
                     continue;
 
-                char character = name[0] == '_' ? char.ToUpper(name[1]) : char.ToLower(name[0]);
+                char character = name.Length > 1 && name[1] == '_' ? char.ToUpper(name[0]) : char.ToLower(name[0]);
                 bool inverted = char.IsDigit(character);
 
                 Bitmap bitmap = new Bitmap(file);
@@ -155,8 +160,8 @@ namespace GoOnTap
                                         boolBitmap.SetPixel(x, y, pixelSelector(pixel) ? Color.Black : Color.White);
                                     }
 
-                                colorBitmap.Save(Path.Combine(tempDirectory.FullName, $"CharsToRead-Color-{top}-{currentX}.png"));
-                                boolBitmap.Save(Path.Combine(tempDirectory.FullName, $"CharsToRead-Bool-{top}-{currentX}.png"));
+                                colorBitmap.Save(Path.Combine(tempDirectory.FullName, $"{name}-Color-{top}-{currentX}.png"));
+                                boolBitmap.Save(Path.Combine(tempDirectory.FullName, $"{name}-Bool-{top}-{currentX}.png"));
                             }
 #endif
 
@@ -302,7 +307,7 @@ namespace GoOnTap
             }
 
             // Adjust arc Y position
-            arcY = density * 0.75f + Enumerable.Range((int)(arcY - density * 2), (int)(density * 4)).Reverse().First(y =>
+            arcY = density * 0.75f + Enumerable.Range((int)(arcY - density * 2), (int)(density * 4.5f)).Reverse().First(y =>
             {
                 int a = getPixel(arcX, y);
 
@@ -368,7 +373,7 @@ namespace GoOnTap
             {
                 float cpWidth = density * 60;
                 float cpHeight = density * 40;
-                float cpBase = arcY - arcWidth / 2 - density * 9;
+                float cpBase = arcY - arcWidth / 2 - density * 10;
 
                 int cpTop = (int)cpBase - Enumerable.Range(0, (int)(cpHeight / 2)).First(y =>
                 {
@@ -503,7 +508,65 @@ namespace GoOnTap
                 return hpValue;
             });
 
-#endregion
+            #endregion
+            #region 7. Read candy name
+
+            Task<string> candyName = Task.Run(() =>
+            {
+                try
+                {
+                    float candyWidth = density * 65;
+                    float candyHeight = density * 8;
+
+                    float candyBase = edgeY + density * 101;
+                    float candyCenter = width * 2 / 3;
+
+                    candyBase = candyBase - Enumerable.Range(0, (int)candyHeight).First(y => Enumerable.Range((int)(candyCenter - candyWidth / 2), (int)candyWidth).Any(x => graySelector(getPixel(x, candyBase - y))));
+
+                    int candyTop = (int)candyBase - Enumerable.Range(0, (int)(candyHeight / 2)).First(y =>
+                    {
+                        if (Enumerable.Range((int)(candyCenter - candyWidth / 2), (int)candyWidth).Any(x => graySelector(getPixel(x, candyBase - y))))
+                            return false;
+
+                        return true;
+                    });
+                    int candyBottom = (int)candyBase + Enumerable.Range(0, (int)(candyHeight / 2)).First(y =>
+                    {
+                        if (Enumerable.Range((int)(candyCenter - candyWidth / 2), (int)candyWidth).Any(x => graySelector(getPixel(x, candyBase + y))))
+                            return false;
+
+                        return true;
+                    });
+                    int candyLeft = (int)candyCenter - (int)(candyWidth / 2) + Enumerable.Range(0, (int)(candyWidth / 2)).First(x =>
+                    {
+                        if (Enumerable.Range(candyTop, candyBottom - candyTop).Any(y => graySelector(getPixel((int)candyCenter - (int)(candyWidth / 2) + x, y))))
+                            return true;
+
+                        return false;
+                    });
+                    int candyRight = (int)candyCenter + 1 + (int)(candyWidth / 2) - Enumerable.Range(0, (int)(candyWidth / 2)).First(x =>
+                    {
+                        if (Enumerable.Range(candyTop, candyBottom - candyTop).Any(y => graySelector(getPixel((int)candyCenter + (int)(candyWidth / 2) - x, y))))
+                            return true;
+
+                        return false;
+                    });
+
+                    string candyCharacters = readString("Candy", c => true, graySelector, candyLeft, candyTop, candyRight, candyBottom);
+
+                    return candyCharacters.ToLower().Replace("?", "")
+                        .Replace("bonbons", "")
+                        .Replace("bonbon", "")
+                        .Replace("candy", "")
+                        .Replace("candies", "");
+                }
+                catch
+                {
+                    return null;
+                }
+            });
+
+            #endregion
 
 #if WINDOWS
             pokemonName.Wait();
@@ -517,7 +580,12 @@ namespace GoOnTap
                 Name = await pokemonName,
                 LevelAngle = (await pokemonLevel - 1) / 178f * 180,
                 CP = await pokemonCp,
-                HP = await pokemonHp
+                HP = await pokemonHp,
+
+                Candy = await candyName,
+                ArcX = (int)(arcX + arcWidth / 2),
+                ArcY = (int)arcY,
+                ArcSize = (int)(arcWidth / 2)
             };
         }
 

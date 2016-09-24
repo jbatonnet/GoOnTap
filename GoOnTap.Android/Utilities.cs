@@ -8,7 +8,7 @@ namespace System
     {
         public static int Diff(string a, string b)
         {
-            if (string.IsNullOrEmpty(a) || string.IsNullOrEmpty(b))
+            if (a == null || b == null) //string.IsNullOrEmpty(a) || string.IsNullOrEmpty(b))
                 throw new ArgumentNullException();
 
             int lengthA = a.Length;

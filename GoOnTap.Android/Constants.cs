@@ -40,11 +40,11 @@ public class PokemonInfo
         BaseStamina = baseStamina;
     }
 
-    public int GetCP(double level, int attack, int defense, int stamina) => (int)(((BaseAttack + attack) * Sqrt(BaseDefense + defense) * Sqrt(BaseStamina + stamina) * Pow(Constants.CPMultipliers[level], 2)) / 10);
+    public int GetCP(double level, int attack, int defense, int stamina) => Max(10, (int)(((BaseAttack + attack) * Sqrt(BaseDefense + defense) * Sqrt(BaseStamina + stamina) * Pow(Constants.CPMultipliers[level], 2)) / 10));
     public int GetMinimumCP(double level) => GetCP(level, 0, 0, 0);
     public int GetMaximumCP(double level) => GetCP(level, 15, 15, 15);
 
-    public int GetHP(double level, int stamina) => (int)((BaseStamina + stamina) * Constants.CPMultipliers[level]);
+    public int GetHP(double level, int stamina) => Max(10, (int)((BaseStamina + stamina) * Constants.CPMultipliers[level]));
     public int GetMinimumHP(double level) => GetHP(level, 0);
     public int GetMaximumHP(double level) => GetHP(level, 15);
 
@@ -59,6 +59,7 @@ public class PokemonInfo
 
         return name;
     }
+    public static double GetLevelAngle(double level, int playerLevel) => (Constants.CPMultipliers[level] - 0.094) * 202.037116 / Constants.CPMultipliers[playerLevel];
 }
 
 public partial class Constants

@@ -73,12 +73,34 @@ namespace GoOnTap
 
                 //using (new ProfileScope("Find matching pokémon"))
                 {
+                    PokemonInfo candyPokemon = string.IsNullOrEmpty(data.Candy) ? null : Constants.Pokemons.MinValue(p =>
+                    {
+                        int englishDiff = p.EnglishName != null ? Utilities.Diff(data.Candy, p.EnglishName) : int.MaxValue;
+                        int frenchDiff = p.FrenchName != null ? Utilities.Diff(data.Candy, p.FrenchName) : int.MaxValue;
+                        int germanDiff = p.GermanName != null ? Utilities.Diff(data.Candy, p.GermanName) : int.MaxValue;
+
+                        return Math.Min(Math.Min(englishDiff, frenchDiff), germanDiff);
+                    });
+
+                    //data.Name = "Toto";
+
                     pokemon = Constants.Pokemons.MinValue(p =>
                     {
                         int englishDiff = p.EnglishName != null ? Utilities.Diff(data.Name, p.EnglishName) : int.MaxValue;
                         int frenchDiff = p.FrenchName != null ? Utilities.Diff(data.Name, p.FrenchName) : int.MaxValue;
+                        int germanDiff = p.GermanName != null ? Utilities.Diff(data.Name, p.GermanName) : int.MaxValue;
+                        float nameRatio = Math.Min(Math.Min(englishDiff, frenchDiff), germanDiff);
 
-                        return Math.Min(englishDiff, frenchDiff);
+                        float evolutionRatio = candyPokemon == null ? -1 : (p.Id - candyPokemon.Id) / 6f;
+                        if (evolutionRatio < 0 || evolutionRatio > 1)
+                            evolutionRatio = 2;
+                        else if (evolutionRatio > 0.5f)
+                            evolutionRatio = 0.5f;
+
+                        float cpRatio = data.CP >= p.GetMinimumCP(pokemonLevel) && data.CP <= p.GetMaximumCP(pokemonLevel) ? 0.25f : 1;
+                        float hpRatio = data.HP >= p.GetMinimumHP(pokemonLevel) && data.HP <= p.GetMaximumHP(pokemonLevel) ? 0.25f : 1;
+
+                        return nameRatio * (evolutionRatio + 0.1f) * cpRatio * hpRatio;
                     });
                 }
 
@@ -97,9 +119,11 @@ namespace GoOnTap
                     }).ToArray();
                 }
 
-                Console.WriteLine("{0} > {{ Name: {1}, Lvl: {2}, CP: {3}, HP: {4}, Pokemon: {5} }}", Path.GetFileName(screenshot), data.Name, pokemonLevel, data.CP, data.HP, pokemon.EnglishName);
+                Console.WriteLine("{0} > {{ Name: {1}, Lvl: {2}, CP: {3}, HP: {4}, Pokemon: {5} }}", Path.GetFileName(screenshot), data.Name, pokemonLevel, data.CP, data.HP, pokemon.EnglishName.Replace("♀", "F").Replace("♂", "M"));
                 pokemon.ToString();
             }
+
+            Console.WriteLine("-- End --");
         }
     }
 }
