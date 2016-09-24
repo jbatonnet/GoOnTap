@@ -545,7 +545,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/PlayerLevelSeek"
-                android:max="40"
+                android:max="39"
                 android:splitTrack="false"
                 android:progress="24"
                 android:indeterminate="false"

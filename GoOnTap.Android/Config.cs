@@ -16,16 +16,22 @@ namespace GoOnTap.Android
             ["Icons by roundicons.com"] = Uri.Parse("android.resource://net.thedju.GoOnTap/" + Resource.Drawable.IconSet2),
         };
 
-        [DisplayName("Player level")]
-        [Description("Current level of Pokemon Go player")]
+        [Browsable(false)]
         public int PlayerLevel
         {
             get
             {
-                return GetValue(24);
+                int value = GetValue(24);
+                if (value < 1) value = 1;
+                if (value > 40) value = 40;
+
+                return value;
             }
             set
             {
+                if (value < 1) value = 1;
+                if (value > 40) value = 40;
+
                 SetValue(value);
             }
         }
