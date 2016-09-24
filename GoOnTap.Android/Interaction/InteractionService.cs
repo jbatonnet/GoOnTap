@@ -14,5 +14,11 @@ namespace GoOnTap.Android
     [Register("net.thedju.GoOnTap.InteractionService")]
     public class GoOnTapInteractionService : VoiceInteractionService
     {
+        public static GoOnTapInteractionService Instance { get; private set; }
+
+        public GoOnTapInteractionService()
+        {
+            Instance = this;
+        }
     }
 }

@@ -54,6 +54,25 @@ namespace GoOnTap.Android
             image = view.FindViewById<ImageView>(Resource.Id.Image);
             ivTable = view.FindViewById<TableLayout>(Resource.Id.IVTable);
 
+            #region Pokemon name
+
+            image.Click += (s, e) =>
+            {
+                /*AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(Context)
+                    .SetTitle("Select a pokemon")
+                    .SetAdapter(new ArrayAdapter<string>(Context, global::Android.Resource.Layout.SelectDialogSingleChoice, Constants.Pokemons.Select(p => $"{p.Id} - {p.EnglishName}").ToArray()), (a, b) =>
+                    {
+                        pokemon = Constants.Pokemons[b.Which];
+                        RefreshStats();
+                    });
+
+                Dialog dialog = dialogBuilder.Create();
+                dialog.Window.SetType(WindowManagerTypes.SystemAlert);
+
+                dialog.Show();*/
+            };
+
+            #endregion
             #region Pokemon level
 
             levelValue = view.FindViewById<TextView>(Resource.Id.LevelValue);
@@ -220,8 +239,9 @@ namespace GoOnTap.Android
                 {
                     int englishDiff = p.EnglishName != null ? Utilities.Diff(data.Name, p.EnglishName) : int.MaxValue;
                     int frenchDiff = p.FrenchName != null ? Utilities.Diff(data.Name, p.FrenchName) : int.MaxValue;
+                    int germanDiff = p.GermanName != null ? Utilities.Diff(data.Name, p.GermanName) : int.MaxValue;
 
-                    return Math.Min(englishDiff, frenchDiff);
+                    return Math.Min(Math.Min(englishDiff, frenchDiff), germanDiff);
                 });
                 Log.Trace("Found pokemon info: {0}", pokemon.EnglishName);
 
@@ -329,9 +349,7 @@ namespace GoOnTap.Android
                     hpSeek.Enabled = true;
                     playerLevelSeek.Enabled = true;
 
-                    string pokemonName = pokemon.EnglishName;
-                    if (Locale.Default.DisplayLanguage == "FR-fr" && pokemon.FrenchName != null)
-                        pokemonName = pokemon.FrenchName;
+                    string pokemonName = pokemon.GetLocalizedName(Locale.Default.ToString());
 
                     // Pokemon image
                     if (name.Text != pokemonName)
@@ -458,7 +476,7 @@ namespace GoOnTap.Android
         }
         private Bitmap GetPokemonIcon(int id)
         {
-            if (iconSetUri?.ToString() != GoOnTapApplication.Config.IconSetUri.ToString())
+            if (iconSetUri == null || GoOnTapApplication.Config.IconSetUri == null || iconSetUri.ToString() != GoOnTapApplication.Config.IconSetUri.ToString())
             {
                 iconSetBitmapRegionDecoder?.Recycle();
                 iconSetStream?.Dispose();
@@ -467,10 +485,10 @@ namespace GoOnTap.Android
                 {
                     byte[] iconSetBytes = GoOnTapApplication.Config.IconSetBytes;
 
-                    if (iconSetBytes == null)
-                        iconSetStream = Context.ContentResolver.OpenInputStream(GoOnTapApplication.Config.IconSetUri);
-                    else
+                    if (iconSetBytes != null)
                         iconSetStream = new MemoryStream(iconSetBytes);
+                    else
+                        iconSetStream = Context.ContentResolver.OpenInputStream(GoOnTapApplication.Config.IconSetUri);
                 }
                 catch (Exception e)
                 {
@@ -491,7 +509,10 @@ namespace GoOnTap.Android
 
                 iconSetUri = GoOnTapApplication.Config.IconSetUri;
             }
-            
+
+            if (iconSetBitmapRegionDecoder == null)
+                return null; 
+
             int x = (id - 1) % 10;
             int y = (id - 1) / 10;
             int width = iconSetBitmapRegionDecoder.Width / 10;

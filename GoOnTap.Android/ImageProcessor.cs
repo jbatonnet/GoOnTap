@@ -19,7 +19,7 @@ namespace GoOnTap
 
     public class ImageProcessor
     {
-        private static Dictionary<char, bool[,]> characters;
+        private static List<KeyValuePair<char, bool[,]>> characters;
 
 #if WINDOWS
         private static DirectoryInfo tempDirectory = new DirectoryInfo(@"..\..\..\Temp");
@@ -45,7 +45,7 @@ namespace GoOnTap
             string directory = @"..\..\..\Data\Characters";
 
             // Preload characters
-            characters = new Dictionary<char, bool[,]>();
+            characters = new List<KeyValuePair<char, bool[,]>>();
 
             foreach (string file in Directory.EnumerateFiles(directory, "*.png"))
             {
@@ -89,7 +89,7 @@ namespace GoOnTap
                 }
 
                 bitmap.Dispose();
-                characters.Add(character, pixels);
+                characters.Add(new KeyValuePair<char, bool[,]>(character, pixels));
             }
 
             // Precompute characters
@@ -100,13 +100,13 @@ namespace GoOnTap
                 output.WriteLine();
                 output.WriteLine("public partial class Constants");
                 output.WriteLine("{");
-                output.WriteLine("    public static Dictionary<char, bool[,]> CharactersCache { get; } = new Dictionary<char, bool[,]>()");
+                output.WriteLine("    public static List<KeyValuePair<char, bool[,]>> CharactersCache { get; } = new List<KeyValuePair<char, bool[,]>>()");
                 output.WriteLine("    {");
 
                 foreach (var pair in characters)
                 {
                     string arrayString = Enumerable.Range(0, pair.Value.GetLength(0)).Select(x => "{ " + Enumerable.Range(0, pair.Value.GetLength(1)).Select(y => pair.Value[x, y] ? "true" : "false").Join(", ") + " }").Join(", ");
-                    output.WriteLine("        ['{0}'] = new bool[{1}, {2}] {{ {3} }},", pair.Key, pair.Value.GetLength(0), pair.Value.GetLength(1), arrayString);
+                    output.WriteLine("        new KeyValuePair<char, bool[,]>('{0}', new bool[{1}, {2}] {{ {3} }}),", pair.Key, pair.Value.GetLength(0), pair.Value.GetLength(1), arrayString);
                 }
 
                 output.WriteLine("    };");
@@ -170,19 +170,18 @@ namespace GoOnTap
                     }
 
                     // Decode chars
-                    char[] result = charsToRead/*.AsParallel()*/.Select((charToRead, i) =>
+                    char[] result = charsToRead.Select((charToRead, i) =>
                     {
                         string _name = name;
                         float charRatio = (float)charToRead.GetLength(1) / charToRead.GetLength(0);
 
-                        ConcurrentDictionary<char, float> matches = new ConcurrentDictionary<char, float>();
-                        matches.TryAdd('?', 0.75f);
+                        ConcurrentBag<KeyValuePair<char, float>> matches = new ConcurrentBag<KeyValuePair<char, float>>();
+                        matches.Add(new KeyValuePair<char, float>('?', 0.75f));
 
-                        foreach (char c in characters.Keys/*.Where(charSelector)*/)
+                        foreach (var p in characters/*.Where(charSelector)*/)
                         {
-                            bool[,] reference;
-                            if (!characters.TryGetValue(c, out reference))
-                                continue;
+                            char c = p.Key;
+                            bool[,] reference = p.Value;
 
                             float referenceRatio = (float)reference.GetLength(1) / reference.GetLength(0);
 
@@ -206,7 +205,7 @@ namespace GoOnTap
                             int count = Enumerable.Range(0, testWidth).Sum(x => Enumerable.Range(0, testHeight).Sum(y => charToRead[x, y] ? 1 : 0));
                             float ratio = (float)diffs / count;
 
-                            matches.TryAdd(c, ratio);
+                            matches.Add(new KeyValuePair<char, float>(c, ratio));
                         }
 
                         return matches.OrderBy(p => p.Value)
@@ -235,6 +234,12 @@ namespace GoOnTap
                 int t = getPixel(edgeX, y - density * 1.5f);
 
                 if (whiteSelector(l) || whiteSelector(t))
+                    return false;
+
+                int r = getPixel(edgeX + density * 3, y);
+                int b = getPixel(edgeX, y + density * 3);
+
+                if (!whiteSelector(r) || !whiteSelector(b))
                     return false;
 
                 return true;
