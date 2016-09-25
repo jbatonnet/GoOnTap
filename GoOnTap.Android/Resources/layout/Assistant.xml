@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:id="@+id/Root">
+    android:id="@+id/Root"
+    android:theme="@android:style/Theme.Material.Light">
 
     <View android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -300,12 +301,47 @@
                 </TableRow>
             </TableLayout>
 
-            <View android:layout_width="match_parent" android:layout_height="1dp"
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_below="@+id/IVTable"
+                android:id="@+id/AverageLayout"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="6dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Average perfection"
+                    android:id="@+id/AverageLabel"
+                    android:layout_column="0"
+                    android:gravity="center_horizontal"
+                    android:textColor="@color/secondary_text_default_material_light"
+                    android:layout_below="@+id/IVTable"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginRight="8dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="63 %"
+                    android:id="@+id/AverageValue"
+                    android:layout_column="0"
+                    android:gravity="center_horizontal"
+                    android:textColor="@color/foreground_material_light"
+                    android:layout_below="@+id/IVTable"
+                    android:layout_centerHorizontal="true" />
+            </LinearLayout>
+
+            <View android:layout_width="match_parent" android:layout_height="1dp"
                 android:background="@color/button_material_light"
                 android:id="@+id/Separator1"
                 android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="8dp"
+                android:layout_below="@+id/AverageLayout" />
 
             <RelativeLayout
                 android:layout_width="64dp"

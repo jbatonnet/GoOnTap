@@ -144,7 +144,8 @@ public partial class Constants
         [38.5] = 0.781790055,
         [39.0] = 0.78463697,
         [39.5] = 0.787473578,
-        [40.0] = 0.79030001
+        [40.0] = 0.79030001,
+        [40.5] = 0.7931164,
     };
 
     public static PokemonInfo[] Pokemons { get; } = new PokemonInfo[]

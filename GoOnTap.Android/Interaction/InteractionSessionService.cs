@@ -1,6 +1,4 @@
-﻿using System;
-
-using Android.OS;
+﻿using Android.OS;
 using Android.Runtime;
 using Android.Service.Voice;
 

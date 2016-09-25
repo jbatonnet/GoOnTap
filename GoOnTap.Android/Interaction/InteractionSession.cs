@@ -28,7 +28,7 @@ namespace GoOnTap.Android
     {
         private View emptyZone, assistantLayout, imageLayout;
         private TextView name;
-        private TextView levelValue, cpValue, hpValue, playerLevelValue;
+        private TextView levelValue, cpValue, hpValue, playerLevelValue, averageValue;
         private SeekBar levelSeek, cpSeek, hpSeek, playerLevelSeek;
         private View arcFeedback;
         private ImageView image;
@@ -55,23 +55,33 @@ namespace GoOnTap.Android
             image = view.FindViewById<ImageView>(Resource.Id.Image);
             ivTable = view.FindViewById<TableLayout>(Resource.Id.IVTable);
             arcFeedback = view.FindViewById(Resource.Id.ArcFeedback);
+            averageValue = view.FindViewById<TextView>(Resource.Id.AverageValue);
 
             #region Pokemon name
 
             image.Click += (s, e) =>
             {
-                /*AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(Context)
-                    .SetTitle("Select a pokemon")
-                    .SetAdapter(new ArrayAdapter<string>(Context, global::Android.Resource.Layout.SelectDialogSingleChoice, Constants.Pokemons.Select(p => $"{p.Id} - {p.EnglishName}").ToArray()), (a, b) =>
+                try
+                {
+                    //@style/Widget.AppCompat.Light.PopupMenu
+                    PopupMenu menu = new PopupMenu(image.Context, image);//, GravityFlags.NoGravity, Resource.Style.Base_Widget_AppCompat_Light_PopupMenu, Resource.Style.Base_Widget_AppCompat_Light_PopupMenu);
+                    menu.MenuItemClick += (a, b) =>
                     {
-                        pokemon = Constants.Pokemons[b.Which];
+                        int id = b.Item.ItemId;
+                        pokemon = Constants.Pokemons.First(p => p.Id == id);
+
                         RefreshStats();
-                    });
+                    };
 
-                Dialog dialog = dialogBuilder.Create();
-                dialog.Window.SetType(WindowManagerTypes.SystemAlert);
+                    foreach (PokemonInfo pokemon in Constants.Pokemons)
+                        menu.Menu.Add(1, pokemon.Id, pokemon.Id, pokemon.Id + " - " + pokemon.GetLocalizedName(Locale.Default.ToString()));
 
-                dialog.Show();*/
+                    menu.Show();
+                }
+                catch (Exception ex)
+                {
+                    ex.ToString();
+                }
             };
 
             #endregion
@@ -182,6 +192,7 @@ namespace GoOnTap.Android
             levelValue.Text = "?";
             cpValue.Text = "?";
             hpValue.Text = "?";
+            averageValue.Text = "?";
             playerLevelValue.Text = playerLevel.ToString();
 
             arcFeedback.Visibility = ViewStates.Gone;
@@ -434,6 +445,11 @@ namespace GoOnTap.Android
                 // Update UI
                 assistantLayout.Post(() =>
                 {
+                    if (matchingIVs.Length == 0)
+                        averageValue.Text = "?";
+                    else
+                        averageValue.Text = ((int)matchingIVs.Average(t => (t.Item1 + t.Item2 + t.Item3) * 100f / 45)) + " %";
+
                     while (ivTable.ChildCount > 1)
                         ivTable.RemoveViewAt(1);
 

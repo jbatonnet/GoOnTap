@@ -109,7 +109,6 @@
     <Compile Include="Interaction\InteractionService.cs" />
     <Compile Include="Interaction\InteractionSession.cs" />
     <Compile Include="Interaction\InteractionSessionService.cs" />
-    <Compile Include="Interaction\RecognitionService.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities.cs" />

@@ -530,13 +530,19 @@ namespace GoOnTap
 
                         return true;
                     });
-                    int candyBottom = (int)candyBase + Enumerable.Range(0, (int)(candyHeight / 2)).First(y =>
+                    int candyBottom = Enumerable.Range((int)candyBase, (int)(candyHeight / 2)).FirstOrDefault(y =>
                     {
+                        if (candyBase + y >= height)
+                            return false;
                         if (Enumerable.Range((int)(candyCenter - candyWidth / 2), (int)candyWidth).Any(x => graySelector(getPixel(x, candyBase + y))))
                             return false;
 
                         return true;
-                    });
+                    }, 0);
+
+                    if (candyBottom == 0)
+                        return null;
+
                     int candyLeft = (int)candyCenter - (int)(candyWidth / 2) + Enumerable.Range(0, (int)(candyWidth / 2)).First(x =>
                     {
                         if (Enumerable.Range(candyTop, candyBottom - candyTop).Any(y => graySelector(getPixel((int)candyCenter - (int)(candyWidth / 2) + x, y))))
