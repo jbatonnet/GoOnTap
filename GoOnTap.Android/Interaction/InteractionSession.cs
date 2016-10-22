@@ -57,31 +57,29 @@ namespace GoOnTap.Android
             arcFeedback = view.FindViewById(Resource.Id.ArcFeedback);
             averageValue = view.FindViewById<TextView>(Resource.Id.AverageValue);
 
+            // Pokemon popup menu
+            PopupMenu menu = new PopupMenu(image.Context, image);
+
+            menu.MenuItemClick += (a, b) =>
+            {
+                int id = b.Item.ItemId;
+                pokemon = Constants.Pokemons.First(p => p.Id == id);
+
+                RefreshStats();
+            };
+
+            Task menuTask = Task.Run(() =>
+            {
+                foreach (PokemonInfo pokemon in Constants.Pokemons)
+                    menu.Menu.Add(1, pokemon.Id, pokemon.Id, pokemon.Id + " - " + pokemon.GetLocalizedName(Locale.Default.ToString()));
+            });
+
             #region Pokemon name
 
             image.Click += (s, e) =>
             {
-                try
-                {
-                    //@style/Widget.AppCompat.Light.PopupMenu
-                    PopupMenu menu = new PopupMenu(image.Context, image);//, GravityFlags.NoGravity, Resource.Style.Base_Widget_AppCompat_Light_PopupMenu, Resource.Style.Base_Widget_AppCompat_Light_PopupMenu);
-                    menu.MenuItemClick += (a, b) =>
-                    {
-                        int id = b.Item.ItemId;
-                        pokemon = Constants.Pokemons.First(p => p.Id == id);
-
-                        RefreshStats();
-                    };
-
-                    foreach (PokemonInfo pokemon in Constants.Pokemons)
-                        menu.Menu.Add(1, pokemon.Id, pokemon.Id, pokemon.Id + " - " + pokemon.GetLocalizedName(Locale.Default.ToString()));
-
-                    menu.Show();
-                }
-                catch (Exception ex)
-                {
-                    ex.ToString();
-                }
+                menuTask.Wait();
+                menu.Show();
             };
 
             #endregion

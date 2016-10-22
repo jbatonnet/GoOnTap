@@ -1,4 +1,6 @@
-﻿using Android.OS;
+﻿using Android.App;
+using Android.Content;
+using Android.OS;
 using Android.Runtime;
 using Android.Service.Voice;
 
@@ -11,5 +13,11 @@ namespace GoOnTap.Android
         {
             return new GoOnTapInteractionSession(this);
         }
+
+        /*public override StartCommandResult OnStartCommand(Intent intent, StartCommandFlags flags, int startId)
+        {
+            base.OnStartCommand(intent, flags, startId);
+            return StartCommandResult.Sticky;
+        }*/
     }
 }
