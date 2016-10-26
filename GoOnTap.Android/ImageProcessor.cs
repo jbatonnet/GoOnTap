@@ -412,6 +412,10 @@ namespace GoOnTap
                 return cpValue;
             });
 
+#if DEBUG
+            pokemonCp.Wait();
+#endif
+
             #endregion
             #region 5. Read pokemon name
 
@@ -453,7 +457,11 @@ namespace GoOnTap
                 return readString("Name", c => !char.IsDigit(c), graySelector, nameLeft, nameTop, nameRight, nameBottom);
             });
 
-#endregion
+#if DEBUG
+            pokemonName.Wait();
+#endif
+
+            #endregion
             #region 6. Read pokemon HP
 
             Task<int> pokemonHp = Task.Run(() =>
@@ -461,8 +469,8 @@ namespace GoOnTap
                 float hpWidth = density * 50;
                 float hpHeight = density * 8;
 
-                float hpBase = edgeY + density * 41.5f;
-                hpBase = hpBase + density + Enumerable.Range(0, (int)hpHeight).First(y => Enumerable.Range((int)(arcCenter - hpWidth / 2), (int)hpWidth).Any(x => graySelector(getPixel(x, hpBase + y))));
+                float hpBase = edgeY + density * 45f;
+                hpBase = hpBase - density - Enumerable.Range(0, (int)hpHeight).First(y => Enumerable.Range((int)(arcCenter - hpWidth / 2), (int)hpWidth).Any(x => graySelector(getPixel(x, hpBase - y))));
 
                 int hpTop = (int)hpBase - Enumerable.Range(0, (int)(hpHeight / 2)).First(y =>
                 {
@@ -493,7 +501,7 @@ namespace GoOnTap
                     return false;
                 });
 
-                string hpCharacters = readString("HP", c => true, graySelector, hpLeft, hpTop, hpRight, hpBottom);
+                string hpCharacters = readString("HP", c => true, graySelector, hpLeft, hpTop, hpRight, hpBottom).ToLower().Replace("hp", "");
                 hpCharacters = "0" + new string(hpCharacters.Reverse().TakeWhile(c => char.IsDigit(c)).Reverse().ToArray());
 
                 int hpValue = -1;
@@ -508,6 +516,10 @@ namespace GoOnTap
                 return hpValue;
             });
 
+#if DEBUG
+            pokemonHp.Wait();
+#endif
+
             #endregion
             #region 7. Read candy name
 
@@ -521,20 +533,20 @@ namespace GoOnTap
                     float candyBase = edgeY + density * 101;
                     float candyCenter = width * 2 / 3;
 
-                    candyBase = candyBase - Enumerable.Range(0, (int)candyHeight).First(y => Enumerable.Range((int)(candyCenter - candyWidth / 2), (int)candyWidth).Any(x => graySelector(getPixel(x, candyBase - y))));
+                    candyBase = candyBase - density - Enumerable.Range(0, (int)candyHeight).First(y => Enumerable.Range((int)(candyCenter - candyWidth / 2), (int)candyWidth).Any(x => lightGraySelector(getPixel(x, candyBase - y))));
 
                     int candyTop = (int)candyBase - Enumerable.Range(0, (int)(candyHeight / 2)).First(y =>
                     {
-                        if (Enumerable.Range((int)(candyCenter - candyWidth / 2), (int)candyWidth).Any(x => graySelector(getPixel(x, candyBase - y))))
+                        if (Enumerable.Range((int)(candyCenter - candyWidth / 2), (int)candyWidth).Any(x => lightGraySelector(getPixel(x, candyBase - y))))
                             return false;
 
                         return true;
                     });
-                    int candyBottom = Enumerable.Range((int)candyBase, (int)(candyHeight / 2)).FirstOrDefault(y =>
+                    int candyBottom = (int)candyBase + Enumerable.Range(0, (int)(candyHeight / 2)).FirstOrDefault(y =>
                     {
                         if (candyBase + y >= height)
                             return false;
-                        if (Enumerable.Range((int)(candyCenter - candyWidth / 2), (int)candyWidth).Any(x => graySelector(getPixel(x, candyBase + y))))
+                        if (Enumerable.Range((int)(candyCenter - candyWidth / 2), (int)candyWidth).Any(x => lightGraySelector(getPixel(x, candyBase + y))))
                             return false;
 
                         return true;
@@ -545,20 +557,20 @@ namespace GoOnTap
 
                     int candyLeft = (int)candyCenter - (int)(candyWidth / 2) + Enumerable.Range(0, (int)(candyWidth / 2)).First(x =>
                     {
-                        if (Enumerable.Range(candyTop, candyBottom - candyTop).Any(y => graySelector(getPixel((int)candyCenter - (int)(candyWidth / 2) + x, y))))
+                        if (Enumerable.Range(candyTop, candyBottom - candyTop).Any(y => lightGraySelector(getPixel((int)candyCenter - (int)(candyWidth / 2) + x, y))))
                             return true;
 
                         return false;
                     });
                     int candyRight = (int)candyCenter + 1 + (int)(candyWidth / 2) - Enumerable.Range(0, (int)(candyWidth / 2)).First(x =>
                     {
-                        if (Enumerable.Range(candyTop, candyBottom - candyTop).Any(y => graySelector(getPixel((int)candyCenter + (int)(candyWidth / 2) - x, y))))
+                        if (Enumerable.Range(candyTop, candyBottom - candyTop).Any(y => lightGraySelector(getPixel((int)candyCenter + (int)(candyWidth / 2) - x, y))))
                             return true;
 
                         return false;
                     });
 
-                    string candyCharacters = readString("Candy", c => true, graySelector, candyLeft, candyTop, candyRight, candyBottom);
+                    string candyCharacters = readString("Candy", c => true, lightGraySelector, candyLeft, candyTop, candyRight, candyBottom);
 
                     return candyCharacters.ToLower().Replace("?", "")
                         .Replace("bonbons", "")
@@ -571,6 +583,10 @@ namespace GoOnTap
                     return null;
                 }
             });
+
+#if DEBUG
+            candyName.Wait();
+#endif
 
             #endregion
 
@@ -621,8 +637,10 @@ namespace GoOnTap
 
         private const float whiteBrightness = 0.96f;
         private const float grayBrightness = 0.55f;
+        private const float lightGrayBrightness = 0.80f;
 
         private static Func<int, bool> whiteSelector = p => getBrightness(p) > whiteBrightness;
         private static Func<int, bool> graySelector = p => getBrightness(p) < grayBrightness;
+        private static Func<int, bool> lightGraySelector = p => getBrightness(p) < lightGrayBrightness;
     }
 }

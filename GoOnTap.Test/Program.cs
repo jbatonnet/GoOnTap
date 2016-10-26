@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-
+using System.Threading;
 using PokemonGo.Test.Properties;
 
 namespace GoOnTap
@@ -19,7 +20,9 @@ namespace GoOnTap
         }
 
         static async void MainContent()
-        { 
+        {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+
             Log.Verbosity = LogVerbosity.Trace;
 
             DirectoryInfo screenshotsDirectory = new DirectoryInfo(@"..\..\..\Data");
@@ -34,8 +37,6 @@ namespace GoOnTap
                 string path = Path.Combine(screenshotsDirectory.FullName, screenshot);
                 if (!File.Exists(path))
                     continue;
-
-                int playerLevel = int.Parse(new string(Path.GetDirectoryName(screenshot).SkipWhile(c => !char.IsDigit(c)).ToArray()));
 
                 Image image = Image.FromFile(path);
                 Bitmap bitmap = new Bitmap(image);
@@ -57,6 +58,17 @@ namespace GoOnTap
                     data = await ImageProcessor.Process(pixels, image.Width, image.Height);
 
                 // Compute pokemon level
+                int playerLevel;
+
+                try
+                {
+                    playerLevel = int.Parse(new string(Path.GetDirectoryName(screenshot).SkipWhile(c => !char.IsDigit(c)).ToArray()));
+                }
+                catch
+                {
+                    playerLevel = 20;
+                }
+
                 double maxLevel = playerLevel + 1.5;
                 Dictionary<double, double> levels = new Dictionary<double, double>();
 
