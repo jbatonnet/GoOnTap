@@ -229,8 +229,6 @@ namespace GoOnTap.Android
                 try
                 {
                     data = await ImageProcessor.Process(pixels, screenshot.Width, screenshot.Height);
-                    if (data.Name == null)
-                        throw new Exception();
 
                     Log.Trace("Got pokemon data: {{ Name: {0}, CP: {1}, HP: {2}, Level: {3} }}", data.Name, data.CP, data.HP, data.LevelAngle);
                 }
@@ -259,10 +257,18 @@ namespace GoOnTap.Android
 
                 pokemon = Constants.Pokemons.MinValue(p =>
                 {
-                    int englishDiff = p.EnglishName != null ? Utilities.Diff(data.Name, p.EnglishName) : int.MaxValue;
-                    int frenchDiff = p.FrenchName != null ? Utilities.Diff(data.Name, p.FrenchName) : int.MaxValue;
-                    int germanDiff = p.GermanName != null ? Utilities.Diff(data.Name, p.GermanName) : int.MaxValue;
-                    float nameRatio = Math.Min(Math.Min(englishDiff, frenchDiff), germanDiff);
+                    float nameRatio = 1;
+
+                    Func<string, string> normalize = v => v.Replace("i", "l");
+
+                    if (data.Name != null)
+                    {
+                        int englishDiff = p.EnglishName != null ? Utilities.Diff(normalize(data.Name), normalize(p.EnglishName)) : int.MaxValue;
+                        int frenchDiff = p.FrenchName != null ? Utilities.Diff(normalize(data.Name), normalize(p.FrenchName)) : int.MaxValue;
+                        int germanDiff = p.GermanName != null ? Utilities.Diff(normalize(data.Name), normalize(p.GermanName)) : int.MaxValue;
+
+                        nameRatio = Math.Min(Math.Min(englishDiff, frenchDiff), germanDiff);
+                    }
 
                     float evolutionRatio = candyPokemon == null ? -1 : (p.Id - candyPokemon.Id) / 6f;
                     if (evolutionRatio < 0 || evolutionRatio > 1)
@@ -282,7 +288,11 @@ namespace GoOnTap.Android
             }).ContinueWith(t =>
             {
                 Log.Error(t.Exception.ToString());
+#if DEBUG
                 assistantLayout.Post(() => Toast.MakeText(Context, t.Exception.ToString(), ToastLength.Long).Show());
+#else
+                assistantLayout.Post(() => Toast.MakeText(Context, "Could not detect pokemon specs", ToastLength.Short).Show());
+#endif
             }, TaskContinuationOptions.OnlyOnFaulted);
         }
 

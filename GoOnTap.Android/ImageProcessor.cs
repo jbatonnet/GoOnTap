@@ -47,22 +47,37 @@ namespace GoOnTap
 
             foreach (FileInfo tempFile in tempDirectory.GetFiles())
                 tempFile.Delete();
-            string directory = @"..\..\..\Data\Characters";
+            string characterDirectory = @"..\..\..\Data\Characters";
 
             // Preload characters
             characters = new List<KeyValuePair<char, bool[,]>>();
 
-            foreach (string file in Directory.EnumerateFiles(directory, "*.png"))
+            foreach (string path in Directory.EnumerateFiles(characterDirectory, "*.png", SearchOption.AllDirectories))
             {
-                string name = Path.GetFileNameWithoutExtension(file);
+                string directory = Path.GetFileName(Path.GetDirectoryName(path));
+                string file = Path.GetFileNameWithoutExtension(path).ToLower();
 
-                if (name.Length > 1 && name[1] != '_')
-                    continue;
+                char character = directory[0];
 
-                char character = name.Length > 1 && name[1] == '_' ? char.ToUpper(name[0]) : char.ToLower(name[0]);
-                bool inverted = char.IsDigit(character);
+                // Special characters
+                switch (directory)
+                {
+                    case "[Dot]": character = '.'; break;
+                    case "[Slash]": character = '/'; break;
+                    case "[Male]": character = '♂'; break;
+                    case "[Female]": character = '♀'; break;
+                }
 
-                Bitmap bitmap = new Bitmap(file);
+                // Variants
+                if (file.Contains("lower"))
+                    character = char.ToLower(character);
+                else if (file.Contains("upper"))
+                    character = char.ToUpper(character);
+
+                bool inverted = file.Contains("inv");
+
+                // Load pixels
+                Bitmap bitmap = new Bitmap(path);
 
                 bool[,] pixels = new bool[bitmap.Width, bitmap.Height];
                 for (int y = 0; y < bitmap.Height; y++)
@@ -127,6 +142,10 @@ namespace GoOnTap
             Func<float, float, int> getPixel = (x, y) => pixels[(int)y * width + (int)x];
             Func<string, Func<char, bool>, Func<int, bool>, int, int, int, int, string> readString = (name, charSelector, pixelSelector, left, top, right, bottom) =>
             {
+#if WINDOWS && DEBUG
+                //ImageProcessor.Reload();
+#endif
+
                 try
                 {
                     // Split chars to read on the picture
@@ -375,39 +394,44 @@ namespace GoOnTap
                 float cpHeight = density * 40;
                 float cpBase = arcY - arcWidth / 2 - density * 10;
 
-                int cpTop = (int)cpBase - Enumerable.Range(0, (int)(cpHeight / 2)).First(y =>
-                {
-                    if (Enumerable.Range((int)(arcCenter - cpWidth / 2), (int)cpWidth).Any(x => whiteSelector(getPixel(x, cpBase - y))))
-                        return false;
-
-                    return true;
-                });
-                int cpBottom = (int)cpBase + Enumerable.Range(0, (int)(cpHeight / 2)).FirstOrDefault(y =>
-                {
-                    if (Enumerable.Range((int)(arcCenter - cpWidth / 2), (int)cpWidth).Any(x => whiteSelector(getPixel(x, cpBase + y))))
-                        return false;
-
-                    return true;
-                });
-                int cpLeft = (int)arcCenter - (int)(cpWidth / 2) + Enumerable.Range(0, (int)(cpWidth / 2)).First(x =>
-                {
-                    if (Enumerable.Range(cpTop, cpBottom - cpTop).Any(y => whiteSelector(getPixel((int)arcCenter - (int)(cpWidth / 2) + x, y))))
-                        return true;
-
-                    return false;
-                });
-                int cpRight = (int)arcCenter + 1 + (int)(cpWidth / 2) - Enumerable.Range(0, (int)(cpWidth / 2)).First(x =>
-                {
-                    if (Enumerable.Range(cpTop, cpBottom - cpTop).Any(y => whiteSelector(getPixel((int)arcCenter + (int)(cpWidth / 2) - x, y))))
-                        return true;
-
-                    return false;
-                });
-
-                string cpCharacters = "0" + readString("CP", c => char.IsDigit(c) || c == '?', whiteSelector, cpLeft, cpTop, cpRight, cpBottom).TrimStart('?');
-                
                 int cpValue = -1;
-                int.TryParse(cpCharacters, out cpValue);
+
+                try
+                {
+                    int cpTop = (int)cpBase - Enumerable.Range(0, (int)(cpHeight / 2)).First(y =>
+                    {
+                        if (Enumerable.Range((int)(arcCenter - cpWidth / 2), (int)cpWidth).Any(x => whiteSelector(getPixel(x, cpBase - y))))
+                            return false;
+
+                        return true;
+                    });
+                    int cpBottom = (int)cpBase + Enumerable.Range(0, (int)(cpHeight / 2)).FirstOrDefault(y =>
+                    {
+                        if (Enumerable.Range((int)(arcCenter - cpWidth / 2), (int)cpWidth).Any(x => whiteSelector(getPixel(x, cpBase + y))))
+                            return false;
+
+                        return true;
+                    });
+                    int cpLeft = (int)arcCenter - (int)(cpWidth / 2) + Enumerable.Range(0, (int)(cpWidth / 2)).First(x =>
+                    {
+                        if (Enumerable.Range(cpTop, cpBottom - cpTop).Any(y => whiteSelector(getPixel((int)arcCenter - (int)(cpWidth / 2) + x, y))))
+                            return true;
+
+                        return false;
+                    });
+                    int cpRight = (int)arcCenter + 1 + (int)(cpWidth / 2) - Enumerable.Range(0, (int)(cpWidth / 2)).First(x =>
+                    {
+                        if (Enumerable.Range(cpTop, cpBottom - cpTop).Any(y => whiteSelector(getPixel((int)arcCenter + (int)(cpWidth / 2) - x, y))))
+                            return true;
+
+                        return false;
+                    });
+
+                    string cpCharacters = "0" + readString("CP", c => char.IsDigit(c) || c == '?', whiteSelector, cpLeft, cpTop, cpRight, cpBottom).TrimStart('?');
+
+                    int.TryParse(cpCharacters, out cpValue);
+                }
+                catch { }
 
                 return cpValue;
             });
@@ -425,36 +449,50 @@ namespace GoOnTap
                 float nameHeight = density * 50;
                 float nameBase = edgeY + density * 27;
 
-                int nameTop = (int)nameBase - Enumerable.Range(0, (int)(nameHeight / 2)).First(y =>
-                {
-                    if (Enumerable.Range((int)(arcCenter - nameWidth / 2), (int)nameWidth).Any(x => graySelector(getPixel(x, nameBase - y))))
-                        return false;
+                string name = null;
 
-                    return true;
-                });
-                int nameBottom = (int)nameBase + Enumerable.Range(0, (int)(nameHeight / 2)).First(y =>
+                try
                 {
-                    if (Enumerable.Range((int)(arcCenter - nameWidth / 2), (int)nameWidth).Any(x => graySelector(getPixel(x, nameBase + y))))
-                        return false;
+                    // Skip blank area
+                    nameBase = nameBase - density - Enumerable.Range(0, (int)nameHeight).First(y => Enumerable.Range((int)(arcCenter - nameWidth / 2), (int)nameWidth).Any(x => graySelector(getPixel(x, nameBase - y))));
 
-                    return true;
-                });
-                int nameLeft = (int)arcCenter - (int)(nameWidth / 2) + Enumerable.Range(0, (int)(nameWidth / 2)).First(x =>
-                {
-                    if (Enumerable.Range(nameTop, nameBottom - nameTop).Any(y => graySelector(getPixel((int)arcCenter - (int)(nameWidth / 2) + x, y))))
+                    int nameTop = (int)nameBase - Enumerable.Range(0, (int)(nameHeight / 2)).First(y =>
+                    {
+                        if (Enumerable.Range((int)(arcCenter - nameWidth / 2), (int)nameWidth).Any(x => graySelector(getPixel(x, nameBase - y))))
+                            return false;
+
                         return true;
+                    });
+                    int nameBottom = (int)nameBase + Enumerable.Range(0, (int)(nameHeight / 2)).First(y =>
+                    {
+                        if (Enumerable.Range((int)(arcCenter - nameWidth / 2), (int)nameWidth).Any(x => graySelector(getPixel(x, nameBase + y))))
+                            return false;
 
-                    return false;
-                });
-                int nameRight = (int)arcCenter + 1 + (int)(nameWidth / 2) - Enumerable.Range(0, (int)(nameWidth / 2)).First(x =>
-                {
-                    if (Enumerable.Range(nameTop, nameBottom - nameTop).Any(y => graySelector(getPixel((int)arcCenter + (int)(nameWidth / 2) - x, y))))
                         return true;
+                    });
+                    int nameLeft = (int)arcCenter - (int)(nameWidth / 2) + Enumerable.Range(0, (int)(nameWidth / 2)).First(x =>
+                    {
+                        if (Enumerable.Range(nameTop, nameBottom - nameTop).Any(y => graySelector(getPixel((int)arcCenter - (int)(nameWidth / 2) + x, y))))
+                            return true;
 
-                    return false;
-                });
+                        return false;
+                    });
+                    int nameRight = (int)arcCenter + 1 + (int)(nameWidth / 2) - Enumerable.Range(0, (int)(nameWidth / 2)).First(x =>
+                    {
+                        if (Enumerable.Range(nameTop, nameBottom - nameTop).Any(y => graySelector(getPixel((int)arcCenter + (int)(nameWidth / 2) - x, y))))
+                            return true;
 
-                return readString("Name", c => !char.IsDigit(c), graySelector, nameLeft, nameTop, nameRight, nameBottom);
+                        return false;
+                    });
+
+                    name = readString("Name", c => !char.IsDigit(c), graySelector, nameLeft, nameTop, nameRight, nameBottom);
+                }
+                catch
+                {
+                    return null;
+                }
+
+                return name;
             });
 
 #if DEBUG
@@ -469,49 +507,57 @@ namespace GoOnTap
                 float hpWidth = density * 50;
                 float hpHeight = density * 8;
 
-                float hpBase = edgeY + density * 45f;
-                hpBase = hpBase - density - Enumerable.Range(0, (int)hpHeight).First(y => Enumerable.Range((int)(arcCenter - hpWidth / 2), (int)hpWidth).Any(x => graySelector(getPixel(x, hpBase - y))));
-
-                int hpTop = (int)hpBase - Enumerable.Range(0, (int)(hpHeight / 2)).First(y =>
-                {
-                    if (Enumerable.Range((int)(arcCenter - hpWidth / 2), (int)hpWidth).Any(x => graySelector(getPixel(x, hpBase - y))))
-                        return false;
-
-                    return true;
-                });
-                int hpBottom = (int)hpBase + Enumerable.Range(0, (int)(hpHeight / 2)).First(y =>
-                {
-                    if (Enumerable.Range((int)(arcCenter - hpWidth / 2), (int)hpWidth).Any(x => graySelector(getPixel(x, hpBase + y))))
-                        return false;
-
-                    return true;
-                });
-                int hpLeft = (int)arcCenter - (int)(hpWidth / 2) + Enumerable.Range(0, (int)(hpWidth / 2)).First(x =>
-                {
-                    if (Enumerable.Range(hpTop, hpBottom - hpTop).Any(y => graySelector(getPixel((int)arcCenter - (int)(hpWidth / 2) + x, y))))
-                        return true;
-
-                    return false;
-                });
-                int hpRight = (int)arcCenter + 1 + (int)(hpWidth / 2) - Enumerable.Range(0, (int)(hpWidth / 2)).First(x =>
-                {
-                    if (Enumerable.Range(hpTop, hpBottom - hpTop).Any(y => graySelector(getPixel((int)arcCenter + (int)(hpWidth / 2) - x, y))))
-                        return true;
-
-                    return false;
-                });
-
-                string hpCharacters = readString("HP", c => true, graySelector, hpLeft, hpTop, hpRight, hpBottom).ToLower().Replace("hp", "");
-                hpCharacters = "0" + new string(hpCharacters.Reverse().TakeWhile(c => char.IsDigit(c)).Reverse().ToArray());
-
                 int hpValue = -1;
-                int.TryParse(hpCharacters, out hpValue);
 
-                // FIXME: Ugly fix
-                if (hpValue >= 10000 && hpValue <= 99999 && (hpValue / 100) % 10 == 1)
-                    hpValue %= 100;
-                if (hpValue >= 1000000 && hpValue <= 9999999 && (hpValue / 1000) % 10 == 1)
-                    hpValue %= 1000;
+                try
+                {
+                    float hpBase = edgeY + density * 45f;
+                    hpBase = hpBase - density - Enumerable.Range(0, (int)hpHeight).First(y => Enumerable.Range((int)(arcCenter - hpWidth / 2), (int)hpWidth).Any(x => graySelector(getPixel(x, hpBase - y))));
+
+                    int hpTop = (int)hpBase - Enumerable.Range(0, (int)(hpHeight / 2)).First(y =>
+                    {
+                        if (Enumerable.Range((int)(arcCenter - hpWidth / 2), (int)hpWidth).Any(x => graySelector(getPixel(x, hpBase - y))))
+                            return false;
+
+                        return true;
+                    });
+                    int hpBottom = (int)hpBase + Enumerable.Range(0, (int)(hpHeight / 2)).First(y =>
+                    {
+                        if (Enumerable.Range((int)(arcCenter - hpWidth / 2), (int)hpWidth).Any(x => graySelector(getPixel(x, hpBase + y))))
+                            return false;
+
+                        return true;
+                    });
+                    int hpLeft = (int)arcCenter - (int)(hpWidth / 2) + Enumerable.Range(0, (int)(hpWidth / 2)).First(x =>
+                    {
+                        if (Enumerable.Range(hpTop, hpBottom - hpTop).Any(y => graySelector(getPixel((int)arcCenter - (int)(hpWidth / 2) + x, y))))
+                            return true;
+
+                        return false;
+                    });
+                    int hpRight = (int)arcCenter + 1 + (int)(hpWidth / 2) - Enumerable.Range(0, (int)(hpWidth / 2)).First(x =>
+                    {
+                        if (Enumerable.Range(hpTop, hpBottom - hpTop).Any(y => graySelector(getPixel((int)arcCenter + (int)(hpWidth / 2) - x, y))))
+                            return true;
+
+                        return false;
+                    });
+
+                    string hpCharacters = readString("HP", c => true, graySelector, hpLeft, hpTop, hpRight, hpBottom);
+
+                    // Only last number after separator
+                    hpCharacters = new string(hpCharacters.Where(c => char.IsDigit(c) || c == '/' || c == '?').ToArray());
+                    hpCharacters = "0" + new string(hpCharacters.Reverse().TakeWhile(c => char.IsDigit(c)).Reverse().ToArray());
+
+                    int.TryParse(hpCharacters, out hpValue);
+
+                    // FIXME: Ugly fix
+                    if (hpValue >= 10000 && hpValue <= 99999 && (hpValue / 100) % 10 == 1)
+                        hpValue %= 100;
+                    if (hpValue >= 1000000 && hpValue <= 9999999 && (hpValue / 1000) % 10 == 1)
+                        hpValue %= 1000;
+                }
+                catch { }
 
                 return hpValue;
             });
@@ -525,14 +571,20 @@ namespace GoOnTap
 
             Task<string> candyName = Task.Run(() =>
             {
+                float candyWidth = density * 65;
+                float candyHeight = density * 8;
+
+                float candyBase = edgeY + density * 101;
+                float candyCenter = width * 2 / 3;
+
+                string name = null;
+
                 try
                 {
-                    float candyWidth = density * 65;
-                    float candyHeight = density * 8;
+                    // Skip green area
+                    candyBase = candyBase - Enumerable.Range(0, (int)candyHeight).First(y => !Enumerable.Range((int)(candyCenter - candyWidth / 2), (int)candyWidth).Any(x => greenSelector(getPixel(x + density * 6, candyBase - y))));
 
-                    float candyBase = edgeY + density * 101;
-                    float candyCenter = width * 2 / 3;
-
+                    // Skip blank area
                     candyBase = candyBase - density - Enumerable.Range(0, (int)candyHeight).First(y => Enumerable.Range((int)(candyCenter - candyWidth / 2), (int)candyWidth).Any(x => lightGraySelector(getPixel(x, candyBase - y))));
 
                     int candyTop = (int)candyBase - Enumerable.Range(0, (int)(candyHeight / 2)).First(y =>
@@ -552,36 +604,38 @@ namespace GoOnTap
                         return true;
                     }, 0);
 
-                    if (candyBottom == 0)
+                    if (candyBottom == candyTop)
                         return null;
 
-                    int candyLeft = (int)candyCenter - (int)(candyWidth / 2) + Enumerable.Range(0, (int)(candyWidth / 2)).First(x =>
+                    int candyLeft = (int)candyCenter - (int)(candyWidth / 2) + Enumerable.Range(0, (int)(candyWidth / 2)).FirstOrDefault(x =>
                     {
                         if (Enumerable.Range(candyTop, candyBottom - candyTop).Any(y => lightGraySelector(getPixel((int)candyCenter - (int)(candyWidth / 2) + x, y))))
                             return true;
 
                         return false;
-                    });
-                    int candyRight = (int)candyCenter + 1 + (int)(candyWidth / 2) - Enumerable.Range(0, (int)(candyWidth / 2)).First(x =>
+                    }, 0);
+                    int candyRight = (int)candyCenter + 1 + (int)(candyWidth / 2) - Enumerable.Range(0, (int)(candyWidth / 2)).FirstOrDefault(x =>
                     {
                         if (Enumerable.Range(candyTop, candyBottom - candyTop).Any(y => lightGraySelector(getPixel((int)candyCenter + (int)(candyWidth / 2) - x, y))))
                             return true;
 
                         return false;
-                    });
+                    }, 0);
+
+                    if (candyLeft == 0 || candyRight == 0)
+                        return null;
 
                     string candyCharacters = readString("Candy", c => true, lightGraySelector, candyLeft, candyTop, candyRight, candyBottom);
 
-                    return candyCharacters.ToLower().Replace("?", "")
+                    name = candyCharacters.ToLower().Replace("?", "")
                         .Replace("bonbons", "")
                         .Replace("bonbon", "")
                         .Replace("candy", "")
                         .Replace("candies", "");
                 }
-                catch
-                {
-                    return null;
-                }
+                catch { }
+
+                return name;
             });
 
 #if DEBUG
@@ -641,6 +695,7 @@ namespace GoOnTap
 
         private static Func<int, bool> whiteSelector = p => getBrightness(p) > whiteBrightness;
         private static Func<int, bool> graySelector = p => getBrightness(p) < grayBrightness;
+        private static Func<int, bool> greenSelector = p => Math.Abs(getRed(p) - 232) + Math.Abs(getGreen(p) - 240) + Math.Abs(getBlue(p) - 225) < 10;
         private static Func<int, bool> lightGraySelector = p => getBrightness(p) < lightGrayBrightness;
     }
 }

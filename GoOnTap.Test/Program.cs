@@ -47,12 +47,6 @@ namespace GoOnTap
                 Marshal.Copy(bitmapData.Scan0, pixels, 0, pixels.Length);
                 bitmap.UnlockBits(bitmapData);
 
-                #if WINDOWS
-
-                ImageProcessor.Reload();
-
-                #endif
-
                 ImageData data;
                 //using (new ProfileScope("Process screenshot"))
                     data = await ImageProcessor.Process(pixels, image.Width, image.Height);
@@ -66,7 +60,7 @@ namespace GoOnTap
                 }
                 catch
                 {
-                    playerLevel = 20;
+                    playerLevel = 30;
                 }
 
                 double maxLevel = playerLevel + 1.5;
@@ -98,10 +92,18 @@ namespace GoOnTap
 
                     pokemon = Constants.Pokemons.MinValue(p =>
                     {
-                        int englishDiff = p.EnglishName != null ? Utilities.Diff(data.Name, p.EnglishName) : int.MaxValue;
-                        int frenchDiff = p.FrenchName != null ? Utilities.Diff(data.Name, p.FrenchName) : int.MaxValue;
-                        int germanDiff = p.GermanName != null ? Utilities.Diff(data.Name, p.GermanName) : int.MaxValue;
-                        float nameRatio = Math.Min(Math.Min(englishDiff, frenchDiff), germanDiff);
+                        float nameRatio = 1;
+
+                        Func<string, string> normalize = v => v.Replace("i", "l");
+
+                        if (data.Name != null)
+                        {
+                            int englishDiff = p.EnglishName != null ? Utilities.Diff(normalize(data.Name), normalize(p.EnglishName)) : int.MaxValue;
+                            int frenchDiff = p.FrenchName != null ? Utilities.Diff(normalize(data.Name), normalize(p.FrenchName)) : int.MaxValue;
+                            int germanDiff = p.GermanName != null ? Utilities.Diff(normalize(data.Name), normalize(p.GermanName)) : int.MaxValue;
+
+                            nameRatio = Math.Min(Math.Min(englishDiff, frenchDiff), germanDiff);
+                        }
 
                         float evolutionRatio = candyPokemon == null ? -1 : (p.Id - candyPokemon.Id) / 6f;
                         if (evolutionRatio < 0 || evolutionRatio > 1)
