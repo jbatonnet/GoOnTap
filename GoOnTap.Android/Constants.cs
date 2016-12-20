@@ -301,6 +301,14 @@ public partial class Constants
         new PokemonInfo(149, "Dragonite",  "Dracolosse", "Dragoran",   263, 201, 182),
         new PokemonInfo(150, "Mewtwo",     "Mewtwo",     "Mewtu",      330, 200, 212),
         new PokemonInfo(151, "Mew",        "Mew",        "Mew",        210, 210, 200),
+        new PokemonInfo(172, "Pichu",      "Pichu",      "Pichu",      77, 63, 40),
+        new PokemonInfo(173, "Cleffa",     "Mélo",       "Pii",        75, 91, 100),
+        new PokemonInfo(174, "Igglybuff",  "Toudoudou",  "Fluffeluff", 69, 34, 180),
+        new PokemonInfo(175, "Togepi",     "Togepi",     "Togepi",     67, 116, 70),
+        new PokemonInfo(176, "Togetic",    "Togetic",    "Togetic",    140, 191, 110),
+        new PokemonInfo(238, "Smoochum",   "Lippouti",   "Kussilla",   153, 116, 90),
+        new PokemonInfo(239, "Elekid",     "Élekid",     "Elekid",     135, 110, 90),
+        new PokemonInfo(240, "Magby",      "Magby",      "Magby",      151, 108, 90),
     };
 }
 
