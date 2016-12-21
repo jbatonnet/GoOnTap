@@ -354,10 +354,10 @@ namespace GoOnTap
 
             Task<int> pokemonLevel = Task.Run(() =>
             {
-                return Enumerable.Range(1, 179).Reverse().FirstOrDefault(d =>
+                return Enumerable.Range(1, 180).Reverse().FirstOrDefault(d =>
                 {
                     // Get the pixel matching the angle
-                    float r1 = d * (float)Math.PI / 180;
+                    float r1 = ((float)d - 0.5f) * (float)Math.PI / 180;
                     float x1 = arcCenter - (float)Math.Cos(r1) * arcWidth / 2;
                     float y1 = arcY - (float)Math.Sin(r1) * arcWidth / 2;
 
@@ -367,7 +367,7 @@ namespace GoOnTap
                         return false;
 
                     // Get the pixel nearby
-                    float r2 = (d + 2) * (float)Math.PI / 180;
+                    float r2 = ((float)d + 1.5f) * (float)Math.PI / 180;
                     float x2 = arcCenter - (float)Math.Cos(r2) * arcWidth / 2;
                     float y2 = arcY - (float)Math.Sin(r2) * arcWidth / 2;
 
@@ -654,7 +654,7 @@ namespace GoOnTap
             return new ImageData()
             {
                 Name = await pokemonName,
-                LevelAngle = (await pokemonLevel - 1) / 178f * 180,
+                LevelAngle = await pokemonLevel,
                 CP = await pokemonCp,
                 HP = await pokemonHp,
 
