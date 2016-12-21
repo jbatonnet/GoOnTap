@@ -585,6 +585,13 @@ namespace GoOnTap.Android
             int width = iconSetBitmapRegionDecoder.Width / 10;
             int height = width;
 
+            // render dummy icon for Pokemon not in the current icon set
+            if ((y + 1) * height >= iconSetBitmapRegionDecoder.Height)
+            {
+                x = 9;
+                y = (iconSetBitmapRegionDecoder.Height / height) - 1;
+            }
+
             Bitmap bitmap = iconSetBitmapRegionDecoder.DecodeRegion(new Rect(width * x, height * y, width * x + width, height * y + height), new BitmapFactory.Options());
             return bitmap;
         }
