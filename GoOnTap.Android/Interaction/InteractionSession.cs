@@ -221,7 +221,13 @@ namespace GoOnTap.Android
         {
             if (screenshot == null)
             {
-                assistantLayout.Post(() => Toast.MakeText(Context, "Go on Tap cannot access screen content. Please check that you did enable screenshot feature in assist app options.", ToastLength.Short).Show());
+                assistantLayout.Post(() =>
+                {
+                    Toast.MakeText(Context, "Go on Tap cannot access screen content. Please check that you did enable screenshot feature in assist app options.", ToastLength.Short).Show();
+                    //Context.StartActivity(new Intent(Settings.ActionVoiceInputSettings));
+                });
+
+                Hide();
                 return;
             }
 
