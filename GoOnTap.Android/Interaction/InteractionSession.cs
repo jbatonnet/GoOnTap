@@ -219,6 +219,12 @@ namespace GoOnTap.Android
         }
         public override void OnHandleScreenshot(Bitmap screenshot)
         {
+            if (screenshot == null)
+            {
+                assistantLayout.Post(() => Toast.MakeText(Context, "Go on Tap cannot access screen content. Please check that you did enable screenshot feature in assist app options.", ToastLength.Short).Show());
+                return;
+            }
+
             // Read raw pixels
             int[] pixels = new int[screenshot.Width * screenshot.Height];
             screenshot.GetPixels(pixels, 0, screenshot.Width, 0, 0, screenshot.Width, screenshot.Height);
