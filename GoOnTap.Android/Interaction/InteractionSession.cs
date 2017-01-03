@@ -529,7 +529,7 @@ namespace GoOnTap.Android
 
             for (double level = 1; level <= maxLevel; level += 0.5)
             {
-                double angle = PokemonInfo.GetLevelAngle(level, playerLevel);
+                double angle = PokemonInfo.GetLevelAngle(level, playerLevel) * 10;
                 levels.Add(level, Math.Abs(levelAngle - angle));
             }
 
