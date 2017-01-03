@@ -357,6 +357,7 @@ namespace GoOnTap
                 return Enumerable.Range(1, 1800).Reverse().FirstOrDefault(d =>
                 {
                     // Get the pixel matching the angle
+                    float r1 = (float)d * (float)Math.PI / 1800;
                     float x1 = arcCenter - (float)Math.Cos(r1) * arcWidth / 2;
                     float y1 = arcY - (float)Math.Sin(r1) * arcWidth / 2;
 
