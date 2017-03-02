@@ -591,8 +591,14 @@ namespace GoOnTap.Android
             int width = iconSetBitmapRegionDecoder.Width / 10;
             int height = width;
 
-            Bitmap bitmap = iconSetBitmapRegionDecoder.DecodeRegion(new Rect(width * x, height * y, width * x + width, height * y + height), new BitmapFactory.Options());
-            return bitmap;
+            try
+            {
+                return iconSetBitmapRegionDecoder.DecodeRegion(new Rect(width * x, height * y, width * x + width, height * y + height), new BitmapFactory.Options());
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }
