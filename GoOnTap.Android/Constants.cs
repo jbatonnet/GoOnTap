@@ -59,7 +59,7 @@ public class PokemonInfo
 
         return name;
     }
-    public static double GetLevelAngle(double level, int playerLevel) => (Constants.CPMultipliers[level] - 0.094) * 180.0 / (Constants.CPMultipliers[Math.Min(playerLevel + 1.5, 40.5)] - 0.094);
+    public static double GetLevelAngle(double level, int playerLevel) => (Constants.CPMultipliers[level] - 0.094) * 202.037116 / Constants.CPMultipliers[playerLevel];
 }
 
 public partial class Constants

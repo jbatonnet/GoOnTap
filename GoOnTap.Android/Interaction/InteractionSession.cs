@@ -536,7 +536,7 @@ namespace GoOnTap.Android
         private double GetPokemonLevel(float levelAngle)
         {
             int playerLevel = GoOnTapApplication.Config.PlayerLevel;
-            double maxLevel = Math.Min(playerLevel + 1.5, 40.5);
+            double maxLevel = Math.Min(playerLevel + 1.5, 40);
             Dictionary<double, double> levels = new Dictionary<double, double>();
 
             for (double level = 1; level <= maxLevel; level += 0.5)
