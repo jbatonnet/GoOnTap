@@ -219,6 +219,18 @@ namespace GoOnTap.Android
         }
         public override void OnHandleScreenshot(Bitmap screenshot)
         {
+            if (screenshot == null)
+            {
+                assistantLayout.Post(() =>
+                {
+                    Toast.MakeText(Context, "Go on Tap cannot access screen content. Please check that you did enable screenshot feature in assist app options.", ToastLength.Short).Show();
+                    //Context.StartActivity(new Intent(Settings.ActionVoiceInputSettings));
+                });
+
+                Hide();
+                return;
+            }
+
             // Read raw pixels
             int[] pixels = new int[screenshot.Width * screenshot.Height];
             screenshot.GetPixels(pixels, 0, screenshot.Width, 0, 0, screenshot.Width, screenshot.Height);
@@ -524,7 +536,7 @@ namespace GoOnTap.Android
         private double GetPokemonLevel(float levelAngle)
         {
             int playerLevel = GoOnTapApplication.Config.PlayerLevel;
-            double maxLevel = Math.Min(playerLevel + 1.5, 40.5);
+            double maxLevel = Math.Min(playerLevel + 1.5, 40);
             Dictionary<double, double> levels = new Dictionary<double, double>();
 
             for (double level = 1; level <= maxLevel; level += 0.5)
@@ -579,15 +591,14 @@ namespace GoOnTap.Android
             int width = iconSetBitmapRegionDecoder.Width / 10;
             int height = width;
 
-            // render dummy icon for Pokemon not in the current icon set
-            if ((y + 1) * height >= iconSetBitmapRegionDecoder.Height)
+            try
             {
-                x = 9;
-                y = (iconSetBitmapRegionDecoder.Height / height) - 1;
+                return iconSetBitmapRegionDecoder.DecodeRegion(new Rect(width * x, height * y, width * x + width, height * y + height), new BitmapFactory.Options());
             }
-
-            Bitmap bitmap = iconSetBitmapRegionDecoder.DecodeRegion(new Rect(width * x, height * y, width * x + width, height * y + height), new BitmapFactory.Options());
-            return bitmap;
+            catch
+            {
+                return null;
+            }
         }
     }
 }
