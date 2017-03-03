@@ -280,7 +280,7 @@ public partial class Constants
         new PokemonInfo(128, "Tauros",     "Tauros",     "Tauros",     198, 197, 150),
         new PokemonInfo(129, "Magikarp",   "Magicarpe",  "Karpador",   29,  102, 40),
         new PokemonInfo(130, "Gyarados",   "Léviator",   "Garados",    237, 197, 190),
-        new PokemonInfo(131, "Lapras",     "Lokhass",    "Lapras",     186, 190, 260),
+        new PokemonInfo(131, "Lapras",     "Lokhass",    "Lapras",     165, 180, 260),
         new PokemonInfo(132, "Ditto",      "Métamorph",  "Ditto",      91,  91,  96),
         new PokemonInfo(133, "Eevee",      "Évoli",      "Evoli",      104, 121, 110),
         new PokemonInfo(134, "Vaporeon",   "Aquali",     "Aquana",     205, 177, 260),
