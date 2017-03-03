@@ -654,7 +654,7 @@ namespace GoOnTap
             return new ImageData()
             {
                 Name = await pokemonName,
-                LevelAngle = (await pokemonLevel - 1) / 178f * 180,
+                LevelAngle = await pokemonLevel,
                 CP = await pokemonCp,
                 HP = await pokemonHp,
 
