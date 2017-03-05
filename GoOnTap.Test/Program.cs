@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace GoOnTap
 {
@@ -66,7 +67,7 @@ namespace GoOnTap
             Console.WriteLine();
 
             // Execute tests
-            RunTests();
+            RunTests().Wait();
 
 #if DEBUG
             Console.WriteLine();
@@ -75,7 +76,7 @@ namespace GoOnTap
 #endif
         }
 
-        private static async void RunTests()
+        private static async Task RunTests()
         {
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
             Log.Verbosity = LogVerbosity.Trace;
