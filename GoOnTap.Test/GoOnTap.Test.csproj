@@ -7,8 +7,8 @@
     <ProjectGuid>{40A73201-B96E-48EE-8E42-A0516F12F8F4}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PokemonGo.Test</RootNamespace>
-    <AssemblyName>PokemonGo.Test</AssemblyName>
+    <RootNamespace>GoOnTap.Test</RootNamespace>
+    <AssemblyName>GoOnTap.Test</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
