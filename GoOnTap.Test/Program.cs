@@ -24,7 +24,7 @@ namespace GoOnTap
         public static int? PlayerLevel { get; private set; }
         public static bool OnlyCandy { get; private set; } = false;
 
-        public static void Main(string[] args)
+        public static int Main(string[] args)
         {
             Console.WriteLine("-- GoOnTap.Test --");
 
@@ -67,19 +67,25 @@ namespace GoOnTap
             Console.WriteLine();
 
             // Execute tests
-            RunTests().Wait();
+            Task<bool> testsTask = RunTests();
+            testsTask.Wait();
 
 #if DEBUG
             Console.WriteLine();
             Console.WriteLine("-- End --");
             Console.ReadLine();
+#else
+            if (!testsTask.Result)
+                return -1;
 #endif
         }
 
-        private static async Task RunTests()
+        private static async Task<bool> RunTests()
         {
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
             Log.Verbosity = LogVerbosity.Trace;
+
+            bool success = true;
 
             FileInfo[] screenshotsInfo = ScreenshotsDirectory.GetFiles("*.png", SearchOption.AllDirectories).ToArray();
             Console.WriteLine("Found {0} screenshots to test", screenshotsInfo.Length);
@@ -96,6 +102,7 @@ namespace GoOnTap
                 catch
                 {
                     Console.Error.WriteLine($"{screenshotInfo.Name} > Invalid screenshot file");
+                    success = false;
                     continue;
                 }
 
@@ -119,6 +126,7 @@ namespace GoOnTap
                 if (playerLevel == null)
                 {
                     Console.Error.WriteLine($"{screenshotInfo.Name} > Could not detect player level. Please specify default player level parameter");
+                    success = false;
                     continue;
                 }
                 
@@ -201,9 +209,14 @@ namespace GoOnTap
                     validation &= validationCp == data.CP;
 
                     if (!validation)
+                    {
                         Console.Error.WriteLine($"{screenshotInfo.Name} > Detected info does not match file name");
+                        success = false;
+                    }
                 }
             }
+
+            return success;
         }
     }
 }
