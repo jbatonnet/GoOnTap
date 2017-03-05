@@ -51,15 +51,31 @@ public class PokemonInfo
     public string GetLocalizedName(string locale = null)
     {
         string name = EnglishName;
+        if (locale == null)
+            return name;
 
         if (locale.StartsWith("fr") && FrenchName != null)
             name = FrenchName;
-        if (locale.StartsWith("de") && GermanName != null)
+        else if (locale.StartsWith("de") && GermanName != null)
             name = GermanName;
 
         return name;
     }
     public static double GetLevelAngle(double level, int playerLevel) => (Constants.CPMultipliers[level] - 0.094) * 180.0 / (Constants.CPMultipliers[Math.Min(playerLevel + 1.5, 40.5)] - 0.094);
+    public static double GetPokemonLevel(int playerLevel, float levelAngle)
+    {
+        double maxLevel = Min(playerLevel + 1.5, 40.5);
+
+        Dictionary<double, double> levels = new Dictionary<double, double>();
+
+        for (double level = 1; level <= maxLevel; level += 0.5)
+        {
+            double angle = GetLevelAngle(level, playerLevel) * 10;
+            levels.Add(level, Abs(levelAngle - angle));
+        }
+
+        return levels.OrderBy(p => p.Value).First().Key;
+    }
 }
 
 public partial class Constants
