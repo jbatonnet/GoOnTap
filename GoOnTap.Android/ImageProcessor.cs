@@ -32,14 +32,14 @@ namespace GoOnTap
 
         static ImageProcessor()
         {
-#if WINDOWS
-            Reload();
-#elif ANDROID
+#if ANDROID || RELEASE
             characters = Constants.CharactersCache;
+#else
+            Reload();
 #endif
         }
 
-#if WINDOWS
+#if WINDOWS && DEBUG
         internal static void Reload()
         {
             if (!tempDirectory.Exists)
@@ -167,7 +167,7 @@ namespace GoOnTap
                                 for (int x = 0; x < currentX - lastX - 1; x++)
                                     charToRead[x, y] = pixelSelector(getPixel(lastX + 1 + x, detectedTop + y));
 
-#if WINDOWS
+#if WINDOWS && DEBUG
                             using (Bitmap colorBitmap = new Bitmap(currentX - lastX - 1, detectedBottom - detectedTop))
                             using (Bitmap boolBitmap = new Bitmap(currentX - lastX - 1, detectedBottom - detectedTop))
                             {
