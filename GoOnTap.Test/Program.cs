@@ -25,6 +25,8 @@ namespace GoOnTap
 
         public static void Main(string[] args)
         {
+            Console.WriteLine("-- GoOnTap.Test --");
+
             Options = args.Where(a => a.StartsWith("/"))
                           .Select(a => a.TrimStart('/'))
                           .Select(a => new { Parameter = a.Trim(), Separator = a.Trim().IndexOf(':') })
@@ -57,6 +59,12 @@ namespace GoOnTap
                     ScreenshotsDirectory = new DirectoryInfo(@"..\..\..\Data");
             }
 
+            Console.WriteLine("Testing directory: " + ScreenshotsDirectory.FullName);
+            if (PlayerLevel != null)
+                Console.WriteLine("Default player level: " + PlayerLevel);
+            Console.WriteLine("Use only candy name: " + OnlyCandy);
+            Console.WriteLine();
+
             // Execute tests
             RunTests();
 
@@ -73,6 +81,7 @@ namespace GoOnTap
             Log.Verbosity = LogVerbosity.Trace;
 
             FileInfo[] screenshotsInfo = ScreenshotsDirectory.GetFiles("*.png", SearchOption.AllDirectories).ToArray();
+            Console.WriteLine("Found {0} screenshots to test", screenshotsInfo.Length);
 
             foreach (FileInfo screenshotInfo in screenshotsInfo)
             {
