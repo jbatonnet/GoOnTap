@@ -78,6 +78,8 @@ namespace GoOnTap
             if (!testsTask.Result)
                 return -1;
 #endif
+
+            return 0;
         }
 
         private static async Task<bool> RunTests()
