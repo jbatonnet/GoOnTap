@@ -22,7 +22,7 @@ namespace GoOnTap
         public static Dictionary<string, string> Options { get; private set; }
         public static List<string> Parameters { get; private set; }
 
-        public static DirectoryInfo ScreenshotsDirectory { get; private set; } = new DirectoryInfo("Test");
+        public static DirectoryInfo ScreenshotsDirectory { get; private set; } = new DirectoryInfo(@"..\..\..\Test");
         public static int? PlayerLevel { get; private set; }
         public static bool OnlyCandy { get; private set; } = false;
 
