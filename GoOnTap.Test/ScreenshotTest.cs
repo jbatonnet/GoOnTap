@@ -123,12 +123,12 @@ namespace GoOnTap
                 int validationCp = int.Parse(screenshotNameMatch.Groups["Cp"].Value);
 
                 // Validate data
-                Assert.Equal(validationName, displayName, true, true, true);
-                Assert.Equal(validationCp, data.CP);
-                Assert.Equal(validationHp, data.HP);
+                Assert.True(validationName.Trim().ToLower() == displayName.Trim().ToLower(), $"Detected Pokemon ({displayName}) name is not valid ({validationName})");
+                Assert.True(validationCp == data.CP, $"Detected Pokemon ({data.CP}) CP is not valid ({validationCp})");
+                Assert.True(validationHp == data.HP, $"Detected Pokemon ({data.HP}) HP is not valid ({validationHp})");
 
                 if (validationLevel != null)
-                    Assert.Equal(validationLevel, pokemonLevel);
+                    Assert.True(validationLevel == pokemonLevel, $"Detected Pokemon ({pokemonLevel}) Level is not valid ({validationLevel}). Arc angle is {data.LevelAngle}");
             }
         }
     }
