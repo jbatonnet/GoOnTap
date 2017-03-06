@@ -353,7 +353,7 @@ namespace GoOnTap.Android
             levelValue.Text = pokemonLevel.ToString();
 
             levelSeek.Enabled = false;
-            levelSeek.Max = playerLevel * 2 + 1;
+            levelSeek.Max = playerLevel * 2 + 2;
             levelSeek.Progress = (int)(pokemonLevel * 2) - 2;
             levelSeek.Enabled = true;
 
@@ -391,7 +391,7 @@ namespace GoOnTap.Android
                     hpSeek.Enabled = false;
                     playerLevelSeek.Enabled = false;
 
-                    levelSeek.Max = playerLevel * 2 + 1;
+                    levelSeek.Max = playerLevel * 2 + 2;
                     levelSeek.Progress = (int)(pokemonLevel * 2) - 2;
                     cpSeek.Max = cpMax - cpMin;
                     cpSeek.Progress = data.CP - cpMin;
@@ -406,7 +406,7 @@ namespace GoOnTap.Android
 
                     // Arc feedback
                     float density = Context.Resources.DisplayMetrics.Density;
-                    float levelAngle = (float)PokemonInfo.GetLevelAngle(pokemonLevel, playerLevel) / 180 * 178 + 1;
+                    float levelAngle = (float)PokemonInfo.GetLevelAngle(pokemonLevel, playerLevel);
                     float feedbackX = data.ArcX - (float)Math.Cos(levelAngle * Math.PI / 180) * data.ArcSize;
                     float feedbackY = data.ArcY - (float)Math.Sin(levelAngle * Math.PI / 180) * data.ArcSize;
 
@@ -536,7 +536,7 @@ namespace GoOnTap.Android
         private double GetPokemonLevel(float levelAngle)
         {
             int playerLevel = GoOnTapApplication.Config.PlayerLevel;
-            double maxLevel = Math.Min(playerLevel + 1.5, 40.5);
+            double maxLevel = Math.Min(playerLevel + 2, 40.5);
             Dictionary<double, double> levels = new Dictionary<double, double>();
 
             for (double level = 1; level <= maxLevel; level += 0.5)

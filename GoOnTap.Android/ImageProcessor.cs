@@ -354,35 +354,61 @@ namespace GoOnTap
 
             Task<int> pokemonLevel = Task.Run(() =>
             {
-                return Enumerable.Range(1, 1800).Reverse().FirstOrDefault(d =>
+                IEnumerable<int> angles = Enumerable.Range(0, 1800).Where(d =>
                 {
-                    // Get the pixel matching the angle
-                    float r1 = (float)d * (float)Math.PI / 1800;
-                    float x1 = arcCenter - (float)Math.Cos(r1) * arcWidth / 2;
-                    float y1 = arcY - (float)Math.Sin(r1) * arcWidth / 2;
+                    float r = (float)d * (float)Math.PI / 1800;
+
+                    // Get a pixel matching the angle slightly outside the arc
+                    float x1 = arcCenter - (float)Math.Cos(r) * (arcWidth * 1.01f) / 2;
+                    float y1 = arcY - (float)Math.Sin(r) * (arcWidth * 1.01f) / 2;
 
                     int p = getPixel(x1, y1);
 
                     if (!whiteSelector(p))
                         return false;
 
-                    // Get the pixel nearby
-                    float r2 = ((float)d + 20f) * (float)Math.PI / 1800;
-                    float x2 = arcCenter - (float)Math.Cos(r2) * arcWidth / 2;
-                    float y2 = arcY - (float)Math.Sin(r2) * arcWidth / 2;
-
-                    float l = (float)Math.Sqrt(Math.Pow(y2 - y1, 2) + Math.Pow(x2 - x1, 2));
-
-                    x2 = x1 + (x2 - x1) * (density * 0.75f / l);
-                    y2 = y1 + (y2 - y1) * (density * 0.75f / l);
+                    // Get a pixel matching the angle slightly inside the arc
+                    float x2 = arcCenter - (float)Math.Cos(r) * (arcWidth * 0.99f) / 2;
+                    float y2 = arcY - (float)Math.Sin(r) * (arcWidth * 0.99f) / 2;
 
                     int n = getPixel(x2, y2);
 
                     if (!whiteSelector(n))
                         return false;
 
+                    // Check a pixel slightly too far out to reject e.g. gym overlays
+                    float x3 = arcCenter - (float)Math.Cos(r) * (arcWidth * 1.03f) / 2;
+                    float y3 = arcY - (float)Math.Sin(r) * (arcWidth * 1.03f) / 2;
+
+                    int p2 = getPixel(x3, y3);
+
+                    if (whiteSelector(p2))
+                        return false;
+
+                    // And another one, too close to the arc center to be the level indicator
+                    float x4 = arcCenter - (float)Math.Cos(r) * (arcWidth * 0.97f) / 2;
+                    float y4 = arcY - (float)Math.Sin(r) * (arcWidth * 0.97f) / 2;
+
+                    int n2 = getPixel(x4, y4);
+
+                    if (whiteSelector(n2))
+                        return false;
+
+                    // Sanity check: make sure the center of the spot is white
+                    float x5 = arcCenter - (float)Math.Cos(r) * arcWidth / 2;
+                    float y5 = arcY - (float)Math.Sin(r) * arcWidth / 2;
+
+                    int c = getPixel(x5, y5);
+
+                    if (!whiteSelector(c))
+                        return false;
+
+                    // We found a white spot on the arc with the correct radius
                     return true;
                 });
+
+                int max = angles.Max();
+                return (int)angles.Where(d => (d >= (max - 20))).Average();
             });
 
             #endregion
