@@ -9,109 +9,15 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using GoOnTap.Test.Properties;
 using Xunit;
 
 namespace GoOnTap
 {
-    public static class Program
+    public class ScreenshotTest
     {
-        internal static Regex DirectoryNameRegex { get; } = new Regex(@"^(?:[^ ]| [^-])+ *[-,] *Lvl *(?<Level>[0-9]+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        internal static Regex ScreenshotNameRegex { get; } = new Regex(@"^(?<Name>(?:[^ ]| [^-])+) *[-,] *Lvl *(?<Level>[X0-9.]+) *[-,] *Cp *(?<Cp>[0-9]+) *[-,] *Hp *(?<Hp>[0-9]+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-        public static Dictionary<string, string> Options { get; private set; }
-        public static List<string> Parameters { get; private set; }
-
-        public static DirectoryInfo ScreenshotsDirectory { get; private set; } = new DirectoryInfo("Test");
-        public static int? PlayerLevel { get; private set; }
-        public static bool OnlyCandy { get; private set; } = false;
-
-        static Program()
-        {
-            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-            Log.Verbosity = LogVerbosity.Trace;
-
-            if (!string.IsNullOrEmpty(Settings.Default.ScreenshotsDirectory))
-                ScreenshotsDirectory = new DirectoryInfo(Settings.Default.ScreenshotsDirectory);
-        }
-
-        public static int Main(string[] args)
-        {
-            Console.WriteLine("-- GoOnTap.Test --");
-
-            Options = args.Where(a => a.StartsWith("/"))
-                          .Select(a => a.TrimStart('/'))
-                          .Select(a => new { Parameter = a.Trim(), Separator = a.Trim().IndexOf(':') })
-                          .ToDictionary(a => a.Separator == -1 ? a.Parameter : a.Parameter.Substring(0, a.Separator).ToLower(), a => a.Separator == -1 ? null : a.Parameter.Substring(a.Separator + 1));
-
-            Parameters = args.Where(a => !a.StartsWith("/"))
-                             .ToList();
-
-            // Decode parameters
-            if (Options.ContainsKey("playerlevel"))
-            {
-                int playerLevel;
-                if (!int.TryParse(Options["playerlevel"], out playerLevel))
-                    throw new FormatException("Invalid specified player level");
-
-                PlayerLevel = playerLevel;
-            }
-            if (Options.ContainsKey("onlycandy"))
-                OnlyCandy = true;
-
-            // Check specified directory
-            
-            if (args.Length > 0)
-            {
-                try
-                {
-                    ScreenshotsDirectory = new DirectoryInfo(args[0]);
-                    if (!ScreenshotsDirectory.Exists)
-                        throw new FileNotFoundException();
-                }
-                catch (Exception e)
-                {
-                    Console.Error.WriteLine("Specified directory could not be found. " + e);
-                }
-            }
-
-            Console.WriteLine("Testing directory: " + ScreenshotsDirectory.FullName);
-            if (PlayerLevel != null)
-                Console.WriteLine("Default player level: " + PlayerLevel);
-            Console.WriteLine("Use only candy name: " + OnlyCandy);
-            Console.WriteLine();
-
-            // Execute tests
-            Task<bool> testsTask = RunTests();
-            testsTask.Wait();
-
-#if DEBUG
-            Console.WriteLine();
-            Console.WriteLine("-- End --");
-            Console.ReadLine();
-#else
-            if (!testsTask.Result)
-                return -1;
-#endif
-
-            return 0;
-        }
-
-        private static async Task<bool> RunTests()
-        {
-            bool success = true;
-
-            FileInfo[] screenshotsInfo = ScreenshotsDirectory.GetFiles("*.png", SearchOption.AllDirectories).ToArray();
-            Console.WriteLine("Found {0} screenshots to test", screenshotsInfo.Length);
-
-            foreach (FileInfo screenshotInfo in screenshotsInfo)
-            {
-
-            }
-
-            return success;
-        }
-        private static async Task<bool> RunTest(FileInfo screenshotInfo)
+        [Theory]
+        [ScreenshotData]
+        public static void Test(FileInfo screenshotInfo)
         {
             Bitmap bitmap;
 
@@ -131,14 +37,15 @@ namespace GoOnTap
             Marshal.Copy(bitmapData.Scan0, pixels, 0, pixels.Length);
             bitmap.UnlockBits(bitmapData);
 
-            ImageData data;
-            //using (new ProfileScope("Process screenshot"))
-            data = await ImageProcessor.Process(pixels, bitmap.Width, bitmap.Height);
+            Task<ImageData> processTask = ImageProcessor.Process(pixels, bitmap.Width, bitmap.Height);
+            processTask.Wait();
+
+            ImageData data = processTask.Result;
 
             // Detect player level
-            int? playerLevel = PlayerLevel;
+            int? playerLevel = Program.PlayerLevel;
 
-            Match directoryNameMatch = DirectoryNameRegex.Match(screenshotInfo.Directory.Name);
+            Match directoryNameMatch = Program.DirectoryNameRegex.Match(screenshotInfo.Directory.Name);
             if (directoryNameMatch.Success)
                 playerLevel = int.Parse(directoryNameMatch.Groups["Level"].Value);
 
@@ -149,7 +56,7 @@ namespace GoOnTap
             double pokemonLevel = PokemonInfo.GetPokemonLevel(playerLevel.Value, data.LevelAngle);
 
             // Find matching pokemon
-            if (OnlyCandy)
+            if (Program.OnlyCandy)
                 data.Name = "Toto";
 
             PokemonInfo candyPokemon = string.IsNullOrEmpty(data.Candy) ? null : Constants.Pokemons.MinValue(p =>
@@ -201,7 +108,7 @@ namespace GoOnTap
             Console.WriteLine($"{screenshotInfo.Name} > {{ Name: {data.Name}, Lvl: {pokemonLevel}, CP: {data.CP}, HP: {data.HP}, Pokemon: {displayName} }}");
 
             // Validate against file name
-            Match screenshotNameMatch = ScreenshotNameRegex.Match(screenshotInfo.Name);
+            Match screenshotNameMatch = Program.ScreenshotNameRegex.Match(screenshotInfo.Name);
             if (screenshotNameMatch.Success)
             {
                 // Decode file name
@@ -216,21 +123,13 @@ namespace GoOnTap
                 int validationCp = int.Parse(screenshotNameMatch.Groups["Cp"].Value);
 
                 // Validate data
-                bool validation = true;
+                Assert.Equal(validationName, displayName, true, true, true);
+                Assert.Equal(validationCp, data.CP);
+                Assert.Equal(validationHp, data.HP);
 
-                validation &= validationName.Trim().ToLower() == displayName.Trim().ToLower();
-                validation &= validationLevel == null || (validationLevel == pokemonLevel);
-                validation &= validationHp == data.HP;
-                validation &= validationCp == data.CP;
-
-                if (!validation)
-                {
-                    Console.Error.WriteLine($"{screenshotInfo.Name} > Detected info does not match file name");
-                    return false;
-                }
+                if (validationLevel != null)
+                    Assert.Equal(validationLevel, pokemonLevel);
             }
-
-            return true;
         }
     }
 }
