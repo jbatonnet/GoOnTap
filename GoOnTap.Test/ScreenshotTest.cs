@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
+
 using Xunit;
 
 namespace GoOnTap
@@ -123,12 +122,12 @@ namespace GoOnTap
                 int validationCp = int.Parse(screenshotNameMatch.Groups["Cp"].Value);
 
                 // Validate data
-                Assert.True(validationName.Trim().ToLower() == displayName.Trim().ToLower(), $"Detected Pokemon ({displayName}) name is not valid ({validationName})");
-                Assert.True(validationCp == data.CP, $"Detected Pokemon ({data.CP}) CP is not valid ({validationCp})");
-                Assert.True(validationHp == data.HP, $"Detected Pokemon ({data.HP}) HP is not valid ({validationHp})");
+                Assert.True(validationName.Trim().ToLower() == displayName.Trim().ToLower(), $"Detected name is \"{displayName}\". Should be \"{validationName}\"");
+                Assert.True(validationCp == data.CP, $"Detected CP is {data.CP}. Should be {validationCp}");
+                Assert.True(validationHp == data.HP, $"Detected HP is {data.HP}. Should be {validationHp}");
 
                 if (validationLevel != null)
-                    Assert.True(validationLevel == pokemonLevel, $"Detected Pokemon ({pokemonLevel}) Level is not valid ({validationLevel}). Arc angle is {data.LevelAngle}");
+                    Assert.True(validationLevel == pokemonLevel, $"Detected level is {pokemonLevel}. Should be {validationLevel} (arc angle is {data.LevelAngle})");
             }
         }
     }

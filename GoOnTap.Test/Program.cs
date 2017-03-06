@@ -59,64 +59,71 @@ namespace GoOnTap
             if (Options.ContainsKey("onlycandy"))
                 OnlyCandy = true;
 
-            // Check specified directory
-            
-            if (args.Length > 0)
-            {
-                try
-                {
-                    ScreenshotsDirectory = new DirectoryInfo(args[0]);
-                    if (!ScreenshotsDirectory.Exists)
-                        throw new FileNotFoundException();
-                }
-                catch (Exception e)
-                {
-                    Console.Error.WriteLine("Specified directory could not be found. " + e);
-                }
-            }
-
-            Console.WriteLine("Testing directory: " + ScreenshotsDirectory.FullName);
+            // Show current settings
             if (PlayerLevel != null)
                 Console.WriteLine("Default player level: " + PlayerLevel);
-            Console.WriteLine("Use only candy name: " + OnlyCandy);
-            Console.WriteLine();
 
-            // Execute tests
-            bool result = RunTests();
+            Console.WriteLine("Use only candy name: " + OnlyCandy);
+
+            // Run specified test
+            bool success = true;
+            string arg = args.Length == 0 ? null : args[0];
+                
+            try
+            {
+                if (arg != null && File.Exists(arg) && arg.ToLower().EndsWith(".png"))
+                {
+                    FileInfo screenshotInfo = new FileInfo(arg);
+                    success = RunTest(screenshotInfo);
+                }
+                else
+                {
+                    if (args != null)
+                    {
+                        ScreenshotsDirectory = new DirectoryInfo(arg);
+                        if (!ScreenshotsDirectory.Exists)
+                            throw new FileNotFoundException();
+                    }
+
+                    Console.WriteLine("Testing directory: " + ScreenshotsDirectory.FullName);
+                    Console.WriteLine();
+
+                    FileInfo[] screenshotsInfo = ScreenshotsDirectory.GetFiles("*.png", SearchOption.AllDirectories).ToArray();
+                    Console.WriteLine("Found {0} screenshots to test", screenshotsInfo.Length);
+
+                    foreach (FileInfo screenshotInfo in screenshotsInfo)
+                        success &= RunTest(screenshotInfo);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine("Error while checking specified parameter. " + e);
+            }
 
 #if DEBUG
             Console.WriteLine();
             Console.WriteLine("-- End --");
             Console.ReadLine();
 #else
-            if (!result)
+            if (!success)
                 return -1;
 #endif
 
             return 0;
         }
 
-        private static bool RunTests()
+        private static bool RunTest(FileInfo screenshotInfo)
         {
-            bool success = true;
-
-            FileInfo[] screenshotsInfo = ScreenshotsDirectory.GetFiles("*.png", SearchOption.AllDirectories).ToArray();
-            Console.WriteLine("Found {0} screenshots to test", screenshotsInfo.Length);
-
-            foreach (FileInfo screenshotInfo in screenshotsInfo)
+            try
             {
-                try
-                {
-                    ScreenshotTest.Test(screenshotInfo);
-                }
-                catch (Exception e)
-                {
-                    success = false;
-                    Console.Error.WriteLine($"{screenshotInfo.Name} > {e.Message}");
-                }
+                ScreenshotTest.Test(screenshotInfo);
+                return true;
             }
-
-            return success;
+            catch (Exception e)
+            {
+                Console.Error.WriteLine($"{screenshotInfo.Name} > {e.Message}");
+                return false;
+            }
         }
     }
 }
