@@ -353,7 +353,7 @@ namespace GoOnTap.Android
             levelValue.Text = pokemonLevel.ToString();
 
             levelSeek.Enabled = false;
-            levelSeek.Max = playerLevel * 2 + 2;
+            levelSeek.Max = Math.Min(playerLevel * 2 + 2, 78);
             levelSeek.Progress = (int)(pokemonLevel * 2) - 2;
             levelSeek.Enabled = true;
 
@@ -391,7 +391,7 @@ namespace GoOnTap.Android
                     hpSeek.Enabled = false;
                     playerLevelSeek.Enabled = false;
 
-                    levelSeek.Max = playerLevel * 2 + 2;
+                    levelSeek.Max = Math.Min(playerLevel * 2 + 2, 78);
                     levelSeek.Progress = (int)(pokemonLevel * 2) - 2;
                     cpSeek.Max = cpMax - cpMin;
                     cpSeek.Progress = data.CP - cpMin;
@@ -536,7 +536,7 @@ namespace GoOnTap.Android
         private double GetPokemonLevel(float levelAngle)
         {
             int playerLevel = GoOnTapApplication.Config.PlayerLevel;
-            double maxLevel = Math.Min(playerLevel + 2, 40.5);
+            double maxLevel = Math.Min(playerLevel + 2, 40);
             Dictionary<double, double> levels = new Dictionary<double, double>();
 
             for (double level = 1; level <= maxLevel; level += 0.5)

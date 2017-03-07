@@ -354,7 +354,7 @@ namespace GoOnTap
 
             Task<int> pokemonLevel = Task.Run(() =>
             {
-                IEnumerable<int> angles = Enumerable.Range(0, 1800).Where(d =>
+                IEnumerable<int> angles = Enumerable.Range(-10, 1821).Reverse().Where(d =>
                 {
                     float r = (float)d * (float)Math.PI / 1800;
 
@@ -408,7 +408,7 @@ namespace GoOnTap
                 });
 
                 int max = angles.Max();
-                return (int)angles.Where(d => (d >= (max - 20))).Average();
+                return Math.Min(Math.Max((int)angles.Where(d => (d >= (max - 20))).Average(), 0), 1800);
             });
 
             #endregion
