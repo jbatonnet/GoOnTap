@@ -61,10 +61,10 @@ public class PokemonInfo
 
         return name;
     }
-    public static double GetLevelAngle(double level, int playerLevel) => (Constants.CPMultipliers[level] - 0.094) * 180.0 / (Constants.CPMultipliers[Math.Min(playerLevel + 2, 40.5)] - 0.094);
+    public static double GetLevelAngle(double level, int playerLevel) => (Constants.CPMultipliers[level] - 0.094) * 180.0 / (Constants.CPMultipliers[Math.Min(playerLevel + 2, 40)] - 0.094);
     public static double GetPokemonLevel(int playerLevel, float levelAngle)
     {
-        double maxLevel = Min(playerLevel + 2, 40.5);
+        double maxLevel = Min(playerLevel + 2, 40);
 
         Dictionary<double, double> levels = new Dictionary<double, double>();
 
@@ -161,7 +161,6 @@ public partial class Constants
         [39.0] = 0.78463697,
         [39.5] = 0.787473578,
         [40.0] = 0.79030001,
-        [40.5] = 0.7931164,
     };
 
     public static PokemonInfo[] Pokemons { get; } = new PokemonInfo[]
