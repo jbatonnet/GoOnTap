@@ -25,12 +25,13 @@ namespace GoOnTap.Test.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        public global::System.Collections.Specialized.StringCollection Screenshots {
+        [global::System.Configuration.DefaultSettingValueAttribute("D:\\Projets\\Git\\GoOnTap.Test")]
+        public string ScreenshotsDirectory {
             get {
-                return ((global::System.Collections.Specialized.StringCollection)(this["Screenshots"]));
+                return ((string)(this["ScreenshotsDirectory"]));
             }
             set {
-                this["Screenshots"] = value;
+                this["ScreenshotsDirectory"] = value;
             }
         }
     }
