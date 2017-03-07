@@ -353,7 +353,7 @@ namespace GoOnTap.Android
             levelValue.Text = pokemonLevel.ToString();
 
             levelSeek.Enabled = false;
-            levelSeek.Max = playerLevel * 2 + 2;
+            levelSeek.Max = Math.Min(playerLevel * 2 + 2, 78);
             levelSeek.Progress = (int)(pokemonLevel * 2) - 2;
             levelSeek.Enabled = true;
 
@@ -391,7 +391,7 @@ namespace GoOnTap.Android
                     hpSeek.Enabled = false;
                     playerLevelSeek.Enabled = false;
 
-                    levelSeek.Max = playerLevel * 2 + 2;
+                    levelSeek.Max = Math.Min(playerLevel * 2 + 2, 78);
                     levelSeek.Progress = (int)(pokemonLevel * 2) - 2;
                     cpSeek.Max = cpMax - cpMin;
                     cpSeek.Progress = data.CP - cpMin;
