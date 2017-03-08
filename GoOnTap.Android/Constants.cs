@@ -51,15 +51,31 @@ public class PokemonInfo
     public string GetLocalizedName(string locale = null)
     {
         string name = EnglishName;
+        if (locale == null)
+            return name;
 
         if (locale.StartsWith("fr") && FrenchName != null)
             name = FrenchName;
-        if (locale.StartsWith("de") && GermanName != null)
+        else if (locale.StartsWith("de") && GermanName != null)
             name = GermanName;
 
         return name;
     }
-    public static double GetLevelAngle(double level, int playerLevel) => (Constants.CPMultipliers[level] - 0.094) * 202.037116 / Constants.CPMultipliers[playerLevel];
+    public static double GetLevelAngle(double level, int playerLevel) => (Constants.CPMultipliers[level] - 0.094) * 180.0 / (Constants.CPMultipliers[Math.Min(playerLevel + 2, 40)] - 0.094);
+    public static double GetPokemonLevel(int playerLevel, float levelAngle)
+    {
+        double maxLevel = Min(playerLevel + 2, 40);
+
+        Dictionary<double, double> levels = new Dictionary<double, double>();
+
+        for (double level = 1; level <= maxLevel; level += 0.5)
+        {
+            double angle = GetLevelAngle(level, playerLevel) * 10;
+            levels.Add(level, Abs(levelAngle - angle));
+        }
+
+        return levels.OrderBy(p => p.Value).First().Key;
+    }
 }
 
 public partial class Constants
@@ -145,7 +161,6 @@ public partial class Constants
         [39.0] = 0.78463697,
         [39.5] = 0.787473578,
         [40.0] = 0.79030001,
-        [40.5] = 0.7931164,
     };
 
     public static PokemonInfo[] Pokemons { get; } = new PokemonInfo[]
@@ -280,7 +295,7 @@ public partial class Constants
         new PokemonInfo(128, "Tauros",     "Tauros",     "Tauros",     198, 197, 150),
         new PokemonInfo(129, "Magikarp",   "Magicarpe",  "Karpador",   29,  102, 40),
         new PokemonInfo(130, "Gyarados",   "Léviator",   "Garados",    237, 197, 190),
-        new PokemonInfo(131, "Lapras",     "Lokhass",    "Lapras",     186, 190, 260),
+        new PokemonInfo(131, "Lapras",     "Lokhass",    "Lapras",     165, 180, 260),
         new PokemonInfo(132, "Ditto",      "Métamorph",  "Ditto",      91,  91,  96),
         new PokemonInfo(133, "Eevee",      "Évoli",      "Evoli",      104, 121, 110),
         new PokemonInfo(134, "Vaporeon",   "Aquali",     "Aquana",     205, 177, 260),
