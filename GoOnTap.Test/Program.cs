@@ -71,7 +71,7 @@ namespace GoOnTap
                 
             try
             {
-                if (arg != null && File.Exists(arg) && arg.ToLower().EndsWith(".png"))
+                if (arg != null && File.Exists(arg))
                 {
                     FileInfo screenshotInfo = new FileInfo(arg);
                     success = RunTest(screenshotInfo);
@@ -88,7 +88,11 @@ namespace GoOnTap
                     Console.WriteLine("Testing directory: " + ScreenshotsDirectory.FullName);
                     Console.WriteLine();
 
-                    FileInfo[] screenshotsInfo = ScreenshotsDirectory.GetFiles("*.png", SearchOption.AllDirectories).ToArray();
+                    FileInfo[] screenshotsInfo = Enumerable.Concat(
+                        ScreenshotsDirectory.GetFiles("*.png", SearchOption.AllDirectories),
+                        ScreenshotsDirectory.GetFiles("*.jpg", SearchOption.AllDirectories)
+                    ).ToArray();
+
                     Console.WriteLine("Found {0} screenshots to test", screenshotsInfo.Length);
 
                     foreach (FileInfo screenshotInfo in screenshotsInfo)

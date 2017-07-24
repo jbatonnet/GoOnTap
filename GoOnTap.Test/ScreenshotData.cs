@@ -24,7 +24,11 @@ namespace GoOnTap
             if (testMethod == null)
                 throw new ArgumentNullException(nameof(testMethod));
 
-            FileInfo[] screenshotsInfo = Program.ScreenshotsDirectory.GetFiles("*.png", SearchOption.AllDirectories).ToArray();
+            FileInfo[] screenshotsInfo = Enumerable.Concat(
+                Program.ScreenshotsDirectory.GetFiles("*.png", SearchOption.AllDirectories),
+                Program.ScreenshotsDirectory.GetFiles("*.jpg", SearchOption.AllDirectories)
+            ).ToArray();
+
             Console.WriteLine("Found {0} screenshots to test", screenshotsInfo.Length);
 
             foreach (FileInfo screenshotInfo in screenshotsInfo)
