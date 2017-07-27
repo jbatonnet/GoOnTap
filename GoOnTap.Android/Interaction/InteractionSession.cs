@@ -473,8 +473,9 @@ namespace GoOnTap.Android
 
                     // Refine IV possibilities with checkboxes
                     bool refine = true;
-
-                    if (!attack.Checked && !defense.Checked && stamina.Checked)
+                    if (!attack.Checked && !defense.Checked && !stamina.Checked)
+                        refine = true;
+                    else if (!attack.Checked && !defense.Checked && stamina.Checked)
                         refine = (ivPossibility.Item3 > ivPossibility.Item1) && (ivPossibility.Item3 > ivPossibility.Item2);
                     else if (!attack.Checked && defense.Checked && !stamina.Checked)
                         refine = (ivPossibility.Item2 > ivPossibility.Item1) && (ivPossibility.Item2 > ivPossibility.Item3);
