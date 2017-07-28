@@ -472,25 +472,29 @@ namespace GoOnTap.Android
                     int hp = pokemon.GetHP(pokemonLevel, ivPossibility.Item3);
 
                     // Refine IV possibilities with checkboxes
-                    bool refine = true;
-                    if (!attack.Checked && !defense.Checked && !stamina.Checked)
-                        refine = true;
-                    else if (!attack.Checked && !defense.Checked && stamina.Checked)
-                        refine = (ivPossibility.Item3 > ivPossibility.Item1) && (ivPossibility.Item3 > ivPossibility.Item2);
-                    else if (!attack.Checked && defense.Checked && !stamina.Checked)
-                        refine = (ivPossibility.Item2 > ivPossibility.Item1) && (ivPossibility.Item2 > ivPossibility.Item3);
-                    else if (!attack.Checked && defense.Checked && stamina.Checked)
-                        refine = (ivPossibility.Item2 > ivPossibility.Item1) && (ivPossibility.Item2 == ivPossibility.Item3);
-                    else if (attack.Checked && !defense.Checked && !stamina.Checked)
-                        refine = (ivPossibility.Item1 > ivPossibility.Item2) && (ivPossibility.Item1 > ivPossibility.Item3);
-                    else if (attack.Checked && !defense.Checked && stamina.Checked)
-                        refine = (ivPossibility.Item1 > ivPossibility.Item2) && (ivPossibility.Item1 == ivPossibility.Item3);
-                    else if (attack.Checked && defense.Checked && !stamina.Checked)
-                        refine = (ivPossibility.Item1 > ivPossibility.Item3) && (ivPossibility.Item1 == ivPossibility.Item2);
-                    else if (attack.Checked && defense.Checked && stamina.Checked)
-                        refine = (ivPossibility.Item1 == ivPossibility.Item2) && (ivPossibility.Item1 == ivPossibility.Item3);
+                    bool refine = false;
 
-                    return data.CP == cp && data.HP == hp && refine;
+                    if (data.CP == cp && data.HP == hp)
+                    {
+                        if (!attack.Checked && !defense.Checked && !stamina.Checked)
+                            refine = true;
+                        else if (!attack.Checked && !defense.Checked && stamina.Checked)
+                            refine = (ivPossibility.Item3 > ivPossibility.Item1) && (ivPossibility.Item3 > ivPossibility.Item2);
+                        else if (!attack.Checked && defense.Checked && !stamina.Checked)
+                            refine = (ivPossibility.Item2 > ivPossibility.Item1) && (ivPossibility.Item2 > ivPossibility.Item3);
+                        else if (!attack.Checked && defense.Checked && stamina.Checked)
+                            refine = (ivPossibility.Item2 > ivPossibility.Item1) && (ivPossibility.Item2 == ivPossibility.Item3);
+                        else if (attack.Checked && !defense.Checked && !stamina.Checked)
+                            refine = (ivPossibility.Item1 > ivPossibility.Item2) && (ivPossibility.Item1 > ivPossibility.Item3);
+                        else if (attack.Checked && !defense.Checked && stamina.Checked)
+                            refine = (ivPossibility.Item1 > ivPossibility.Item2) && (ivPossibility.Item1 == ivPossibility.Item3);
+                        else if (attack.Checked && defense.Checked && !stamina.Checked)
+                            refine = (ivPossibility.Item1 > ivPossibility.Item3) && (ivPossibility.Item1 == ivPossibility.Item2);
+                        else if (attack.Checked && defense.Checked && stamina.Checked)
+                            refine = (ivPossibility.Item1 == ivPossibility.Item2) && (ivPossibility.Item1 == ivPossibility.Item3);
+                    }
+                        
+                    return refine;
                 }).ToArray();
 
                 // Sort and limit number
