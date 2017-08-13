@@ -314,7 +314,7 @@ public partial class Constants
         new PokemonInfo(147, "Dratini",    "Minidraco",  "Dratini",    119, 94,  82),
         new PokemonInfo(148, "Dragonair",  "Draco",      "Dragonir",   163, 138, 122),
         new PokemonInfo(149, "Dragonite",  "Dracolosse", "Dragoran",   263, 201, 182),
-        new PokemonInfo(150, "Mewtwo",     "Mewtwo",     "Mewtu",      330, 200, 212),
+        new PokemonInfo(150, "Mewtwo",     "Mewtwo",     "Mewtu",      300, 182, 193),
         new PokemonInfo(151, "Mew",        "Mew",        "Mew",        210, 210, 200),
         new PokemonInfo(152, "Chikorita",  "Germignon",  "Endivie",    92,  122, 90),
         new PokemonInfo(153, "Bayleef",    "Macronium",  "Lorblatt",   122, 155, 120),
