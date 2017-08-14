@@ -659,7 +659,7 @@ namespace GoOnTap
                         .Replace("candy", "")
                         .Replace("candies", "")
                         .Replace("canoy", "")
-                        .replace("canoies", "");
+                        .Replace("canoies", "");
                 }
                 catch { }
 
