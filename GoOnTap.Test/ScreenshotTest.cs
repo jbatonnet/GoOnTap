@@ -99,7 +99,7 @@ namespace GoOnTap
             }).ToArray();
 
             string displayName = pokemon.EnglishName.Replace("♀", "F").Replace("♂", "M");
-            Console.WriteLine($"{screenshotInfo.Name} > {{ Name: {data.Name}, Lvl: {pokemonLevel}, CP: {data.CP}, HP: {data.HP}, Pokemon: {displayName} }}");
+            Console.WriteLine($"{screenshotInfo.Name} > {{ Name: {data.Name}, Lvl: {pokemonLevel}, CP: {data.CP}, HP: {data.HP}, Family: {data.Candy}, Pokemon: {displayName} }}");
 
             // Validate against file name
             Match screenshotNameMatch = Program.ScreenshotNameRegex.Match(screenshotInfo.Name);
