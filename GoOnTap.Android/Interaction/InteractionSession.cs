@@ -301,7 +301,7 @@ namespace GoOnTap.Android
                     float cpRatio = data.CP >= p.GetMinimumCP(pokemonLevel) && data.CP <= p.GetMaximumCP(pokemonLevel) ? 0.25f : 1;
                     float hpRatio = data.HP >= p.GetMinimumHP(pokemonLevel) && data.HP <= p.GetMaximumHP(pokemonLevel) ? 0.25f : 1;
 
-                    return nameRatio * (evolutionRatio + 0.1f) * cpRatio * hpRatio;
+                    return nameRatio * evolutionRatio * cpRatio * hpRatio;
                 });
 
                 Log.Trace("Found pokemon info: {0}", pokemon.EnglishName);
