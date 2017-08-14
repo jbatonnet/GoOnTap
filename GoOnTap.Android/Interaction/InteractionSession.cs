@@ -297,16 +297,11 @@ namespace GoOnTap.Android
                         nameRatio = Math.Min(Math.Min(englishDiff, frenchDiff), germanDiff);
                     }
 
-                    float evolutionRatio = candyPokemon == null ? -1 : (p.Id - candyPokemon.Id) / 6f;
-                    if (evolutionRatio < 0 || evolutionRatio > 1)
-                        evolutionRatio = 2;
-                    else if (evolutionRatio > 0.5f)
-                        evolutionRatio = 0.5f;
-
+                    float evolutionRatio = candyPokemon != null && p.Family == candyPokemon.Id ? 0.25f : 1;
                     float cpRatio = data.CP >= p.GetMinimumCP(pokemonLevel) && data.CP <= p.GetMaximumCP(pokemonLevel) ? 0.25f : 1;
                     float hpRatio = data.HP >= p.GetMinimumHP(pokemonLevel) && data.HP <= p.GetMaximumHP(pokemonLevel) ? 0.25f : 1;
 
-                    return nameRatio * (evolutionRatio + 0.1f) * cpRatio * hpRatio;
+                    return nameRatio * evolutionRatio * cpRatio * hpRatio;
                 });
 
                 Log.Trace("Found pokemon info: {0}", pokemon.EnglishName);

@@ -81,16 +81,11 @@ namespace GoOnTap
                     nameRatio = Math.Min(Math.Min(englishDiff, frenchDiff), germanDiff);
                 }
 
-                float evolutionRatio = candyPokemon == null ? -1 : (p.Id - candyPokemon.Id) / 6f;
-                if (evolutionRatio < 0 || evolutionRatio > 1)
-                    evolutionRatio = 2;
-                else if (evolutionRatio > 0.5f)
-                    evolutionRatio = 0.5f;
-
+                float evolutionRatio = candyPokemon != null && p.Family == candyPokemon.Id ? 0.25f : 1;
                 float cpRatio = data.CP >= p.GetMinimumCP(pokemonLevel) && data.CP <= p.GetMaximumCP(pokemonLevel) ? 0.25f : 1;
                 float hpRatio = data.HP >= p.GetMinimumHP(pokemonLevel) && data.HP <= p.GetMaximumHP(pokemonLevel) ? 0.25f : 1;
 
-                return nameRatio * (evolutionRatio + 0.1f) * cpRatio * hpRatio;
+                return nameRatio * evolutionRatio * cpRatio * hpRatio;
             });
 
             // Simulate IV possibilities
@@ -104,7 +99,8 @@ namespace GoOnTap
             }).ToArray();
 
             string displayName = pokemon.EnglishName.Replace("♀", "F").Replace("♂", "M");
-            Console.WriteLine($"{screenshotInfo.Name} > {{ Name: {data.Name}, Lvl: {pokemonLevel}, CP: {data.CP}, HP: {data.HP}, Pokemon: {displayName} }}");
+            string familyName = candyPokemon == null ? "none" : candyPokemon.EnglishName.Replace("♀", "F").Replace("♂", "M");
+            Console.WriteLine($"{screenshotInfo.Name} > {{ Name: {data.Name}, Lvl: {pokemonLevel}, CP: {data.CP}, HP: {data.HP}, Candy: {data.Candy}, Family: {familyName}, Pokemon: {displayName} }}");
 
             // Validate against file name
             Match screenshotNameMatch = Program.ScreenshotNameRegex.Match(screenshotInfo.Name);
