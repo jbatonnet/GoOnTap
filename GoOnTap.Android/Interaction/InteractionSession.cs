@@ -33,6 +33,7 @@ namespace GoOnTap.Android
         private View arcFeedback;
         private ImageView image;
         private TableLayout ivTable;
+        private CheckBox attack, defense, stamina;
 
         private ImageData data;
         private double pokemonLevel;
@@ -56,6 +57,15 @@ namespace GoOnTap.Android
             ivTable = view.FindViewById<TableLayout>(Resource.Id.IVTable);
             arcFeedback = view.FindViewById(Resource.Id.ArcFeedback);
             averageValue = view.FindViewById<TextView>(Resource.Id.AverageValue);
+
+            attack = view.FindViewById<CheckBox>(Resource.Id.textView14);
+            defense = view.FindViewById<CheckBox>(Resource.Id.textView15);
+            stamina = view.FindViewById<CheckBox>(Resource.Id.textView16);
+
+            // Add listeners
+            attack.Click += (o, e) => { RefreshIVs(false); };
+            defense.Click += (o, e) => { RefreshIVs(false); };
+            stamina.Click += (o, e) => { RefreshIVs(false); };
 
             // Pokemon popup menu
             PopupMenu menu = new PopupMenu(image.Context, image);
@@ -204,6 +214,11 @@ namespace GoOnTap.Android
             cpSeek.Progress = 0;
             hpSeek.Progress = 0;
             playerLevelSeek.Progress = playerLevel - 1;
+
+            // Set checkboxes unckeck
+            attack.Checked = false;
+            defense.Checked = false;
+            stamina.Checked = false;
 
             while (ivTable.ChildCount > 1)
                 ivTable.RemoveViewAt(1);
@@ -456,7 +471,30 @@ namespace GoOnTap.Android
                     int cp = pokemon.GetCP(pokemonLevel, ivPossibility.Item1, ivPossibility.Item2, ivPossibility.Item3);
                     int hp = pokemon.GetHP(pokemonLevel, ivPossibility.Item3);
 
-                    return data.CP == cp && data.HP == hp;
+                    // Refine IV possibilities with checkboxes
+                    bool refine = false;
+
+                    if (data.CP == cp && data.HP == hp)
+                    {
+                        if (!attack.Checked && !defense.Checked && !stamina.Checked)
+                            refine = true;
+                        else if (!attack.Checked && !defense.Checked && stamina.Checked)
+                            refine = (ivPossibility.Item3 > ivPossibility.Item1) && (ivPossibility.Item3 > ivPossibility.Item2);
+                        else if (!attack.Checked && defense.Checked && !stamina.Checked)
+                            refine = (ivPossibility.Item2 > ivPossibility.Item1) && (ivPossibility.Item2 > ivPossibility.Item3);
+                        else if (!attack.Checked && defense.Checked && stamina.Checked)
+                            refine = (ivPossibility.Item2 > ivPossibility.Item1) && (ivPossibility.Item2 == ivPossibility.Item3);
+                        else if (attack.Checked && !defense.Checked && !stamina.Checked)
+                            refine = (ivPossibility.Item1 > ivPossibility.Item2) && (ivPossibility.Item1 > ivPossibility.Item3);
+                        else if (attack.Checked && !defense.Checked && stamina.Checked)
+                            refine = (ivPossibility.Item1 > ivPossibility.Item2) && (ivPossibility.Item1 == ivPossibility.Item3);
+                        else if (attack.Checked && defense.Checked && !stamina.Checked)
+                            refine = (ivPossibility.Item1 > ivPossibility.Item3) && (ivPossibility.Item1 == ivPossibility.Item2);
+                        else if (attack.Checked && defense.Checked && stamina.Checked)
+                            refine = (ivPossibility.Item1 == ivPossibility.Item2) && (ivPossibility.Item1 == ivPossibility.Item3);
+                    }
+                        
+                    return refine;
                 }).ToArray();
 
                 // Sort and limit number
@@ -584,7 +622,7 @@ namespace GoOnTap.Android
             }
 
             if (iconSetBitmapRegionDecoder == null)
-                return null; 
+                return null;
 
             int x = (id - 1) % 10;
             int y = (id - 1) / 10;
