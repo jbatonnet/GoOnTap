@@ -167,7 +167,6 @@ public partial class Constants
 
     public static PokemonInfo[] Pokemons { get; } = new PokemonInfo[]
     {
-
         new PokemonInfo(0,   0,   "MissingNo",  "MissingNo",  "MissingNo",  0,   0,   0), // align array indexes with dex numbers
         new PokemonInfo(1,   1,   "Bulbasaur",  "Bulbizarre", "Bisasam",    118, 118, 90),
         new PokemonInfo(2,   1,   "Ivysaur",    "Herbizarre", "Bisaknosp",  151, 151, 120),
